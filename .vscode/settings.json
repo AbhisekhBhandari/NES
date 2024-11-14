@@ -1,0 +1,13 @@
+{
+    "files.associations": {
+        "stdint.h": "c",
+        "main.h": "c",
+        "stdlib.h": "c",
+        "cpu_6502.h": "c",
+        "stdio.h": "c",
+        "stdbool.h": "c",
+        "string.h": "c",
+        "compare": "cpp",
+        "instruction.h": "c"
+    }
+}
