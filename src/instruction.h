@@ -2,6 +2,7 @@
 #define INSTRUCTION
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include "cpu_6502.h"
 
 typedef enum {
@@ -111,6 +112,17 @@ void TSX(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup);
 void TXA(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup);
 void TXS(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup);
 void TYA(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup);
+void PHY(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup);
+void PLY(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup);
+void PHX(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup);
+void PLX(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup);
+void TRB(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup);
+void RMB(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup);
+void TSB(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup);
+void STZ(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup);
+void BRA(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup);
+
+
 
 
 

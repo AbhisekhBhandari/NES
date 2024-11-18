@@ -176,6 +176,14 @@ void show_debug(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup, uin
 
         printw("Current Page: %02X \n", CURR_PAGE);
 
+        printw("\n------------------------------------------\n");
+        printw("STACK \n");
+        uint8_t STACK_START_ADDRESS = 0xFF;
+        int8_t stack_x_cursor, stack_y_cursor;
+        getyx(stdscr, stack_y_cursor, stack_x_cursor);
+        show_stack(cpu_6502, stack_x_cursor, stack_y_cursor, STACK_START_ADDRESS);
+
+
         int ch;
         ch = getch();
         switch (ch) {
@@ -196,10 +204,10 @@ void show_debug(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup, uin
             default:
                 break;
         }
-        printw("\nYou are in debug mode:\n");
-        printw("ENTER - Next Instruction\n");
-        printw("ARROW LEFT - Prev memory page\n");
-        printw("ARROW RIGHT - Next memory page\n");
+        // printw("\nYou are in debug mode:\n");
+        // printw("ENTER - Next Instruction\n");
+        // printw("ARROW LEFT - Prev memory page\n");
+        // printw("ARROW RIGHT - Next memory page\n");
 
         refresh();
     }
@@ -242,4 +250,15 @@ void show_mem(cpu_6502_t* cpu_6502, int8_t x_cursor, int8_t y_cursor, int16_t st
         }
         printw("\n");
     }
+}
+
+void show_stack(cpu_6502_t* cpu_6502, uint8_t x_cursor, uint8_t y_cursor ,uint8_t start_address){
+    move(y_cursor, x_cursor);
+    for(uint8_t i = 11; i > 0; i--){
+        printw("%4X -> ", start_address - i + 1);        //stack address
+        printw("|%2X |", cpu_6502->stack[start_address - i + 1]);
+        printw("\n---------------------- \n");
+    }
+
+
 }

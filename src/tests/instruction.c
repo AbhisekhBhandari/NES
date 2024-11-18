@@ -8,15 +8,15 @@ struct instruction_t lookup[256] = {
     {"ORA", &ORA, ZERO_PAGE_INDIRECT, &zero_page_indexed_indirect_mode, 6},
     {"???", &XXX, IMPLIED, &implied_mode, 2},
     {"???", &XXX, IMPLIED, &implied_mode, 8},
-    {"???", &NOP, IMPLIED, &implied_mode, 3}, // TSB
+    {"TSB", &TSB, ZERO_PAGE, &zero_page_mode, 3}, // TSB
     {"ORA", &ORA, ZERO_PAGE, &zero_page_mode, 3},
     {"ASL", &ASL, ZERO_PAGE, &zero_page_mode, 5},
-    {"???", &XXX, IMPLIED, &implied_mode, 5},   //RMB0
+    {"RMB0", &RMB, ZERO_PAGE, &zero_page_mode, 5},   //RMB0
     {"PHP", &PHP, IMPLIED, &implied_mode, 3},
     {"ORA", &ORA, IMMEDIATE, &immediate_mode, 2},
     {"ASL", &ASL, ACCUMULATOR, &accumulator_mode, 2}, 
     {"???", &XXX, IMPLIED, &implied_mode, 2},
-    {"???", &NOP, IMPLIED, &implied_mode, 4},   //TSB
+    {"TSB", &TSB, ABSOLUTE, &absolute_mode, 4},   //TSB
     {"ORA", &ORA, ABSOLUTE, &absolute_mode, 4},
     {"ASL", &ASL, ABSOLUTE, &absolute_mode, 6},
     {"???", &XXX, IMPLIED,  &implied_mode, 6},  //BBR0
@@ -25,17 +25,17 @@ struct instruction_t lookup[256] = {
     // Ox10
     {"BPL", &BPL, PROGRAM_COUNTER_RELATIVE, &program_counter_relative_mode, 2},
     {"ORA", &ORA, ZERO_PAGE_INDIRECT_INDEXED_Y, &zero_page_indirect_indexed_y, 5},
-    {"???", &XXX, IMPLIED, &implied_mode, 2},           //ORA
+    {"ORA", &ORA, ZERO_PAGE_INDIRECT, &zero_page_indirect, 2},           
     {"???", &XXX, IMPLIED, &implied_mode, 8},
-    {"???", &NOP,IMPLIED, &implied_mode, 4},        //TRB
+    {"TRB", &TRB, ZERO_PAGE, &zero_page_mode, 4},        //TRB
     {"ORA", &ORA, ZERO_PAGE_INDEXED_X, &zero_page_indexed_X, 4},
     {"ASL", &ASL, ZERO_PAGE_INDEXED_X, &zero_page_indexed_X, 6},
-    {"???", &XXX, IMPLIED, &implied_mode, 6},   //RMB1
+    {"RMB1", &RMB, ZERO_PAGE, &zero_page_mode, 6},   
     {"CLC", &CLC, IMPLIED, &implied_mode, 2},
     {"ORA", &ORA, ABSOLUTE_INDEXED_Y, &absolute_indexed_y_mode, 4},
-    {"???", &NOP, IMPLIED, &implied_mode, 2}, //inc
+    {"INC", &INC, ACCUMULATOR, &accumulator_mode, 2}, 
     {"???", &XXX, IMPLIED, &implied_mode, 7},   
-    {"???", &NOP, IMPLIED, &implied_mode, 4},  //TRB
+    {"TRB", &TRB, IMPLIED, &implied_mode, 4},  //TRB
     {"ORA", &ORA, ABSOLUTE_INDEXED_X, &absolute_indexed_x_mode, 4},
     {"ASL", &ASL, ABSOLUTE_INDEXED_X, &absolute_indexed_x_mode, 7},
     {"???", &XXX, IMPLIED, &implied_mode, 7},  // BBR1
@@ -50,7 +50,7 @@ struct instruction_t lookup[256] = {
     {"BIT", &BIT, ZERO_PAGE, &zero_page_mode, 3},
     {"AND", &AND, ZERO_PAGE, &zero_page_mode, 3},
     {"ROL", &ROL, ZERO_PAGE, &zero_page_mode, 5},
-    {"???", &XXX, IMPLIED, &implied_mode, 5},   //RMB2
+    {"RMB", &XXX, ZERO_PAGE, &zero_page_mode, 5},   //RMB2
     {"PLP", &PLP, IMPLIED, &implied_mode, 4},
     {"AND", &AND, IMMEDIATE, &immediate_mode, 2},
     {"ROL", &ROL, ACCUMULATOR, &accumulator_mode, 2},
@@ -64,17 +64,17 @@ struct instruction_t lookup[256] = {
     // 0x30
     {"BMI", &BMI, PROGRAM_COUNTER_RELATIVE, &program_counter_relative_mode, 2},
      {"AND", &AND, ZERO_PAGE_INDEXED_Y, &zero_page_indirect_indexed_y, 5},
-      {"???", &XXX, IMPLIED, &implied_mode, 2}, //AND
+      {"AND", &AND, ZERO_PAGE_INDIRECT, &zero_page_indirect, 2}, 
     {"???", &XXX, IMPLIED, &implied_mode, 8},
-     {"???", &NOP, IMPLIED, &implied_mode, 4}, //BIT
+     {"BIT", &BIT, ABSOLUTE_INDEXED_X, &absolute_indexed_x_mode, 4}, //BIT
      {"AND", &AND, ZERO_PAGE_INDEXED_X, &zero_page_indexed_X, 4},
     {"ROL", &ROL, ZERO_PAGE_INDEXED_X, &zero_page_indexed_X, 6}, 
-    {"???", &XXX, IMPLIED, &implied_mode, 6},   //RMB3
+    {"RMB3", &RMB, ZERO_PAGE, &zero_page_mode, 6},   //RMB3
     {"SEC", &SEC, IMPLIED, &implied_mode, 2},
     {"AND", &AND, ABSOLUTE_INDEXED_Y, &absolute_indexed_y_mode, 4},
-     {"???", &NOP, IMPLIED, &implied_mode, 2},  //DEC
+     {"DEC", &DEC, ACCUMULATOR, &accumulator_mode, 2},  //DEC
       {"???", &XXX, IMPLIED, &implied_mode, 7},
-    {"???", &NOP, IMPLIED, &implied_mode, 4},   //BIT
+    {"BIT", &BIT, ZERO_PAGE_INDEXED_X, &zero_page_indexed_X, 4},   //BIT
      {"AND", &AND, ABSOLUTE_INDEXED_X, &absolute_indexed_x_mode, 4},
       {"ROL", &ROL, ABSOLUTE_INDEXED_X, &absolute_indexed_x_mode, 7},
     {"???", &XXX, IMPLIED, &implied_mode, 7},       //BBR3
@@ -88,7 +88,7 @@ struct instruction_t lookup[256] = {
     {"???", &NOP, IMPLIED, &implied_mode, 3},
     {"EOR", &EOR, ZERO_PAGE, &zero_page_mode, 3},
     {"LSR", &LSR, ZERO_PAGE, &zero_page_mode, 5}, 
-    {"???", &XXX, IMPLIED, &implied_mode, 5},   //RMB4
+    {"RMB4", &RMB, ZERO_PAGE, &zero_page_mode, 5},   //RMB4
     {"PHA", &PHA, IMPLIED, &implied_mode, 3}, 
     {"EOR", &EOR, IMMEDIATE, &immediate_mode, 2}, 
     {"LSR", &LSR, ACCUMULATOR, &accumulator_mode, 2},
@@ -100,22 +100,22 @@ struct instruction_t lookup[256] = {
     //0x4F
 
     //0x50
-      {"BVC", &BVC, PROGRAM_COUNTER_RELATIVE ,&program_counter_relative_mode, 2},
+    {"BVC", &BVC, PROGRAM_COUNTER_RELATIVE ,&program_counter_relative_mode, 2},
     {"EOR", &EOR, ZERO_PAGE_INDIRECT_INDEXED_Y,&zero_page_indirect_indexed_y, 5}, 
-    {"???", &XXX, IMPLIED, &implied_mode, 2},   //EOR
+    {"EOR", &EOR, ZERO_PAGE_INDIRECT, &zero_page_indirect, 2},   //EOR
     {"???", &XXX, IMPLIED, &implied_mode, 8},
     {"???", &NOP, IMPLIED, &implied_mode, 4},
-     {"EOR", &EOR, ZERO_PAGE_INDEXED_X,&zero_page_indexed_X, 4},
-      {"LSR", &LSR, ZERO_PAGE_INDEXED_X,&zero_page_indexed_X, 6},
-    {"???", &XXX, IMPLIED, &implied_mode, 6},   //RMB5
-     {"CLI", &CLI, IMPLIED, &implied_mode, 2},
-      {"EOR", &EOR, ABSOLUTE_INDEXED_Y,&absolute_indexed_y_mode, 4},
-    {"???", &NOP, IMPLIED, &implied_mode, 2},   //PHY
-     {"???", &XXX, IMPLIED, &implied_mode, 7},
-      {"???", &NOP, IMPLIED, &implied_mode, 4},
+    {"EOR", &EOR, ZERO_PAGE_INDEXED_X,&zero_page_indexed_X, 4},
+    {"LSR", &LSR, ZERO_PAGE_INDEXED_X,&zero_page_indexed_X, 6},
+    {"RMB5", &RMB, ZERO_PAGE, &zero_page_mode, 6},   //RMB5
+    {"CLI", &CLI, IMPLIED, &implied_mode, 2},
+    {"EOR", &EOR, ABSOLUTE_INDEXED_Y,&absolute_indexed_y_mode, 4},
+    {"PHY", &PHY, STACK, &stack_mode, 2},   //PHY
+    {"???", &XXX, IMPLIED, &implied_mode, 7},
+    {"???", &NOP, IMPLIED, &implied_mode, 4},
     {"EOR", &EOR, ABSOLUTE_INDEXED_X ,&absolute_indexed_x_mode, 4},
-     {"LSR", &LSR, ABSOLUTE_INDEXED_X ,&absolute_indexed_x_mode, 7},
-      {"???", &XXX, IMPLIED, &implied_mode, 7}, //BBR5
+    {"LSR", &LSR, ABSOLUTE_INDEXED_X ,&absolute_indexed_x_mode, 7},
+    {"???", &XXX, IMPLIED, &implied_mode, 7}, //BBR5
     //0x5F
 
     //0x60
@@ -123,10 +123,10 @@ struct instruction_t lookup[256] = {
      {"ADC", &ADC, ZERO_PAGE_INDEXED_INDIRECT,&zero_page_indexed_indirect_mode, 6},
       {"???", &XXX, IMPLIED, &implied_mode, 2},
     {"???", &XXX, IMPLIED, &implied_mode, 8},
-     {"???", &NOP, IMPLIED, &implied_mode, 3},  //STZ
+     {"STZ", &STZ, ZERO_PAGE, &zero_page_mode, 3},  //STZ
       {"ADC", &ADC, ZERO_PAGE, &zero_page_mode, 3},
     {"ROR", &ROR, ZERO_PAGE, &zero_page_mode, 5}, 
-    {"???", &XXX, IMPLIED, &implied_mode, 5},   //RMB6
+    {"RMB6", &RMB, ZERO_PAGE, &zero_page_mode, 5},   //RMB6
     {"PLA", &PLA, IMPLIED, &implied_mode, 4},
     {"ADC", &ADC, IMMEDIATE, &immediate_mode, 2}, 
     {"ROR", &ROR, ACCUMULATOR, &accumulator_mode, 2}, 
@@ -140,17 +140,17 @@ struct instruction_t lookup[256] = {
     //0x70
     {"BVS", &BVS, PROGRAM_COUNTER_RELATIVE ,&program_counter_relative_mode, 2}, 
     {"ADC", &ADC, ZERO_PAGE_INDIRECT_INDEXED_Y,&zero_page_indirect_indexed_y, 5},
-    {"???", &XXX, IMPLIED, &implied_mode, 2},   //ADC
+    {"ADC", &ADC, ZERO_PAGE_INDIRECT, &zero_page_indirect, 2},   //ADC
     {"???", &XXX, IMPLIED, &implied_mode, 8}, 
-    {"???", &NOP, IMPLIED, &implied_mode, 4},   //STZ
+    {"STZ", &STZ, ZERO_PAGE_INDEXED_X, &zero_page_indexed_X, 4},   //STZ
     {"ADC", &ADC, ZERO_PAGE_INDEXED_X,&zero_page_indexed_X, 4},
     {"ROR", &ROR, ZERO_PAGE_INDEXED_X,&zero_page_indexed_X, 6}, 
-    {"???", &XXX, IMPLIED, &implied_mode, 6},   //RMB7
+    {"RMB7", &RMB, ZERO_PAGE, &zero_page_mode, 6},   //RMB7
     {"SEI", &SEI, IMPLIED, &implied_mode, 2}, 
     {"ADC", &ADC, ABSOLUTE_INDEXED_Y,&absolute_indexed_y_mode, 4}, 
-    {"???", &NOP, IMPLIED, &implied_mode, 2},   //PLY
+    {"PLY", &PLY, STACK, &stack_mode, 2},   //PLY
     {"???", &XXX, IMPLIED, &implied_mode, 7}, 
-    {"???", &NOP, IMPLIED, &implied_mode, 4},   //JMP
+    {"JMP", &JMP, ABSOLUTE_INDEXED_INDIRECT, &absolute_indexed_indirect_mode, 4},   //JMP
     {"ADC", &ADC, ABSOLUTE_INDEXED_X ,&absolute_indexed_x_mode, 4},
     {"ROR", &ROR, ABSOLUTE_INDEXED_X ,&absolute_indexed_x_mode, 7}, 
     {"???", &XXX, IMPLIED, &implied_mode, 7},       //BBR7
@@ -158,7 +158,7 @@ struct instruction_t lookup[256] = {
 
 
     // Ox80
-    {"???", &NOP, IMPLIED, &implied_mode, 2},   //BRA
+    {"BRA", &BRA, PROGRAM_COUNTER_RELATIVE, &program_counter_relative_mode, 2},   //BRA
     {"STA", &STA, ZERO_PAGE_INDEXED_INDIRECT,&zero_page_indexed_indirect_mode, 6}, 
     {"???", &NOP, IMPLIED, &implied_mode, 2}, 
     {"???", &XXX, IMPLIED, &implied_mode, 2},
@@ -167,7 +167,7 @@ struct instruction_t lookup[256] = {
     {"STX", &STX, ZERO_PAGE, &zero_page_mode, 3},
     {"???", &XXX, IMPLIED, &implied_mode, 3},   //SMB0
     {"DEY", &DEY, IMPLIED, &implied_mode, 2}, 
-    {"???", &NOP, IMMEDIATE, &immediate_mode, 2},   //BIT
+    {"BIT", &BIT, IMMEDIATE, &immediate_mode, 2},   //BIT
     {"TXA", &TXA, IMPLIED, &implied_mode, 2}, 
     {"???", &XXX, IMPLIED, &implied_mode, 2}, 
     {"STY", &STY, ABSOLUTE , &absolute_mode, 4},
@@ -179,7 +179,7 @@ struct instruction_t lookup[256] = {
     //0x90
     {"BCC", &BCC, PROGRAM_COUNTER_RELATIVE ,&program_counter_relative_mode, 2}, 
     {"STA", &STA, ZERO_PAGE_INDIRECT_INDEXED_Y,&zero_page_indirect_indexed_y, 6}, 
-    {"???", &XXX, IMPLIED, &implied_mode, 2},   //STA
+    {"STA", &STA, ZERO_PAGE_INDIRECT, &zero_page_indirect, 2},   //STA
     {"???", &XXX, IMPLIED, &implied_mode, 8}, 
     {"STY", &STY, ZERO_PAGE_INDEXED_X,&zero_page_indexed_X, 4}, 
     {"STA", &STA, ZERO_PAGE_INDEXED_X,&zero_page_indexed_X, 4},
@@ -189,9 +189,9 @@ struct instruction_t lookup[256] = {
     {"STA", &STA, ABSOLUTE_INDEXED_Y,&absolute_indexed_y_mode, 5}, 
     {"TXS", &TXS, IMPLIED, &implied_mode, 2}, 
     {"???", &XXX, IMPLIED, &implied_mode, 5},
-    {"???", &NOP, IMPLIED, &implied_mode, 5},   //STZ
+    {"STZ", &STZ, ABSOLUTE, &absolute_mode, 5},   //STZ
     {"STA", &STA, ABSOLUTE_INDEXED_X ,&absolute_indexed_x_mode, 5}, 
-    {"???", &XXX, IMPLIED, &implied_mode, 5},       //STZ
+    {"STZ", &STZ, ABSOLUTE_INDEXED_X, &absolute_indexed_x_mode, 5},       //STZ
     {"???", &XXX, IMPLIED, &implied_mode, 7},       //BBS2
     //0x9F
 
@@ -218,7 +218,7 @@ struct instruction_t lookup[256] = {
     //0xB0
     {"BCS", &BCS, PROGRAM_COUNTER_RELATIVE ,&program_counter_relative_mode, 2},
     {"LDA", &LDA, ZERO_PAGE_INDIRECT_INDEXED_Y,&zero_page_indirect_indexed_y, 5}, 
-    {"???", &XXX, IMPLIED, &implied_mode, 2},       //LDA
+    {"LDA", &LDA, ZERO_PAGE_INDIRECT, &zero_page_indirect, 2},       //LDA
     {"???", &XXX, IMPLIED, &implied_mode, 8},
     {"LDY", &LDY, ZERO_PAGE_INDEXED_X,&zero_page_indexed_X, 4}, 
     {"LDA", &LDA, ZERO_PAGE_INDEXED_X,&zero_page_indexed_X, 4}, 
@@ -256,7 +256,7 @@ struct instruction_t lookup[256] = {
     //0xD0
     {"BNE", &BNE, PROGRAM_COUNTER_RELATIVE ,&program_counter_relative_mode, 2}, 
     {"CMP", &CMP, ZERO_PAGE_INDIRECT_INDEXED_Y,&zero_page_indirect_indexed_y, 5},
-    {"???", &XXX, IMPLIED, &implied_mode, 2},   //CMP
+    {"CMP", &CMP, ZERO_PAGE_INDIRECT, &zero_page_indirect, 2},   //CMP
     {"???", &XXX, IMPLIED, &implied_mode, 8}, 
     {"???", &NOP, IMPLIED, &implied_mode, 4},
     {"CMP", &CMP, ZERO_PAGE_INDEXED_X,&zero_page_indexed_X, 4}, 
@@ -264,7 +264,7 @@ struct instruction_t lookup[256] = {
     {"???", &XXX, IMPLIED, &implied_mode, 6},       //SMB5
     {"CLD", &CLD, IMPLIED, &implied_mode, 2}, 
     {"CMP", &CMP, ABSOLUTE_INDEXED_Y,&absolute_indexed_y_mode, 4}, 
-    {"NOP", &NOP, IMPLIED, &implied_mode, 2},       //PHX
+    {"PHX", &PHX, STACK, &stack_mode, 2},       //PHX
     {"???", &XXX, IMPLIED, &implied_mode, 7},   //STP
     {"???", &NOP, IMPLIED, &implied_mode, 4}, 
     {"CMP", &CMP, ABSOLUTE_INDEXED_X ,&absolute_indexed_x_mode, 4},
@@ -294,7 +294,7 @@ struct instruction_t lookup[256] = {
     //0XF0
     {"BEQ", &BEQ, PROGRAM_COUNTER_RELATIVE ,&program_counter_relative_mode, 2}, 
     {"SBC", &SBC, ZERO_PAGE_INDIRECT_INDEXED_Y,&zero_page_indirect_indexed_y, 5}, 
-    {"???", &XXX, IMPLIED, &implied_mode, 2},       //SBC
+    {"SBC", &SBC, ZERO_PAGE_INDIRECT, &zero_page_indirect, 2},       //SBC
     {"???", &XXX, IMPLIED, &implied_mode, 8}, 
     {"???", &NOP, IMPLIED, &implied_mode, 4}, 
     {"SBC", &SBC, ZERO_PAGE_INDEXED_X,&zero_page_indexed_X, 4},
@@ -302,7 +302,7 @@ struct instruction_t lookup[256] = {
     {"???", &XXX, IMPLIED, &implied_mode, 6},   //SMB7
     {"SED", &SED, IMPLIED, &implied_mode, 2},
     {"SBC", &SBC, ABSOLUTE_INDEXED_Y,&absolute_indexed_y_mode, 4}, 
-    {"NOP", &NOP, IMPLIED, &implied_mode, 2},       //PLX
+    {"PLX", &PLX, STACK, &stack_mode, 2},       //PLX
     {"???", &XXX, IMPLIED, &implied_mode, 7},
     {"???", &NOP, IMPLIED, &implied_mode, 4}, 
     {"SBC", &SBC, ABSOLUTE_INDEXED_X ,&absolute_indexed_x_mode, 4}, 
@@ -486,8 +486,15 @@ void ADC(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
 
 void AND(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
     // A = A & memory
-    uint16_t memory_addr = selected_lookup->op_mode(cpu_6502);
-    cpu_6502->registers.A_reg &= cpu_6502->ram[memory_addr];
+    //absolute, immediate
+    uint8_t value;
+    if(selected_lookup->addr_mode == IMMEDIATE){
+        value = fetch_next_byte(cpu_6502);
+    }else{
+        uint16_t memory_addr = selected_lookup->op_mode(cpu_6502);
+        value = cpu_6502->ram[memory_addr];
+    }
+    cpu_6502->registers.A_reg &= value;
     
 }
 
@@ -585,8 +592,13 @@ void BEQ(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
 void BIT(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
     // does not change memorty but flags
     //A & memory
-    uint16_t memory_address = selected_lookup->op_mode(cpu_6502);
-    uint8_t operand = cpu_6502->ram[memory_address];
+    uint8_t operand;
+    if(selected_lookup->addr_mode == IMMEDIATE){
+        operand = fetch_next_byte(cpu_6502);
+    }else{
+        uint16_t memory_address = selected_lookup->op_mode(cpu_6502);
+        operand = cpu_6502->ram[memory_address];
+    }
 
     uint8_t result = cpu_6502->registers.A_reg & operand;
     //update zero flag if zero
@@ -744,8 +756,14 @@ void CPY(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
 
 // DEC - decrement Memory 
 void DEC(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
-    uint16_t memory_address = selected_lookup->op_mode(cpu_6502);
-    uint8_t result = --cpu_6502->ram[memory_address];
+    uint8_t result;
+    
+    if(selected_lookup->addr_mode == ACCUMULATOR){
+        result = --cpu_6502->registers.A_reg;
+    }else{
+        uint16_t memory_address = selected_lookup->op_mode(cpu_6502);
+        result = --cpu_6502->ram[memory_address];
+    }
     
     //Update zero flag
     cpu_6502->registers.status_regs = 
@@ -807,8 +825,14 @@ void EOR(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
 
 // INC - Increment Memory
 void INC(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
-    uint16_t memory_address = selected_lookup->op_mode(cpu_6502);
-    uint8_t result = ++cpu_6502->ram[memory_address];
+    uint8_t result;
+    if(selected_lookup->addr_mode == ACCUMULATOR){
+       result = cpu_6502->registers.A_reg++;
+        
+    }else{
+        uint16_t memory_address = selected_lookup->op_mode(cpu_6502);
+        result = ++cpu_6502->ram[memory_address];
+    }
     
     //Update zero flag
     cpu_6502->registers.status_regs = 
@@ -1051,29 +1075,6 @@ void ROL(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
     }
 
 
-    // uint8_t operand;
-    // uint8_t temp_status_flags = cpu_6502->registers.status_regs;
-
-    // if(selected_lookup->addr_mode == IMPLIED) {
-    //     operand = cpu_6502->registers.A_reg;        
-
-    //     cpu_6502->registers.A_reg <<= 1;
-    //     //copy carry flag into bit 0
-    //     cpu_6502->registers.A_reg = (operand & ~0x1) |
-    //                             (temp_status_flags & STATUS_CARRY);
-
-    // }else {
-    //     uint16_t memory_address = selected_lookup->op_mode(cpu_6502);
-    //     operand = cpu_6502->ram[memory_address];
-
-    //     cpu_6502->ram[memory_address] <<= 1;
-    //     cpu_6502->ram[memory_address] = (operand & ~0x1) | (temp_status_flags & 0x1);
-
-    // }
-
-    // // bit  7 ->carry
-    // cpu_6502->registers.status_regs = (temp_status_flags & ~STATUS_CARRY) | 
-    //                                     (operand & 0X80);
 
 }
 
@@ -1295,3 +1296,74 @@ void TYA(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
 }
 
 
+
+// PHY: push y register on stack
+void PHY(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
+    cpu_6502->stack[cpu_6502->registers.SP_reg--] = cpu_6502->registers.Y_reg;
+
+}
+
+// PLY - Pull Y register from the stack
+void PLY(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup){
+    cpu_6502->registers.Y_reg = cpu_6502->stack[++cpu_6502->registers.SP_reg];
+
+}
+
+// PHX: push x register on stack
+void PHX(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
+    cpu_6502->stack[cpu_6502->registers.SP_reg--] = cpu_6502->registers.X_reg;
+}
+// PLX = pull X register from the stack
+void PLX(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
+    cpu_6502->registers.X_reg = cpu_6502->stack[++cpu_6502->registers.SP_reg];
+}
+
+// TSB - Test and set memory bit
+void TSB(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
+// A & M, only change the zero flag
+//  M = A | M
+// zero page mode or absolute
+    uint16_t memory_address = selected_lookup->op_mode(cpu_6502);
+    uint16_t memory_value = cpu_6502->ram[memory_address];
+    //  updating zero flag  (A & M)
+    cpu_6502->registers.status_regs = (cpu_6502->registers.status_regs & ~STATUS_ZERO) | ((memory_value & cpu_6502->registers.A_reg) == 0 ? STATUS_ZERO : 0);
+
+    cpu_6502->ram[memory_address] = cpu_6502->registers.A_reg | memory_value;
+}
+
+// RMB = Reset memory bit
+void RMB(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup){
+// RMB0 = clears bit 0 of provided memory location and so on...
+    uint8_t position_to_clear = (uint8_t)(selected_lookup->opcode[3] - '0');
+    uint16_t memory_address = selected_lookup->op_mode(cpu_6502);
+    cpu_6502->ram[memory_address] &= (~(1 << position_to_clear)); 
+
+
+}
+// TRB
+void TRB(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
+    // Fetch the memory address
+    uint16_t memory_address = selected_lookup->op_mode(cpu_6502);
+
+    // Test: Calculate the Zero flag based on (A & memory)
+    uint8_t memory_value = cpu_6502->ram[memory_address];
+    cpu_6502->registers.status_regs = 
+        (cpu_6502->registers.status_regs & ~STATUS_ZERO) | 
+        ((cpu_6502->registers.A_reg & memory_value) == 0 ? STATUS_ZERO : 0);
+
+    // Reset: Clear bits in memory that are set in the accumulator
+    cpu_6502->ram[memory_address] &= ~(cpu_6502->registers.A_reg);
+}
+
+// STZ = Store zero in memory
+void STZ(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup){
+    uint16_t memory_address = selected_lookup->op_mode(cpu_6502);
+    cpu_6502->ram[memory_address] = 0x00;
+}
+
+// BRA = branch always
+void BRA(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup){
+    //PC_relative_mode
+    int8_t offset = fetch_next_byte(cpu_6502);
+    cpu_6502->registers.PC_reg += offset;
+}

@@ -107,8 +107,6 @@ main:
   stx $66
 
   ;; here 0070
-
-
   ;; PUSH/PULL COMMANDS
   ldx #$FF
   txs
@@ -125,13 +123,13 @@ main:
   ldy #0
   ply
   plx
-  pla
+  pla   ;;NEGATIVE FLAG IS BEING SET (problem)
   sta $70
   stx $71
   sty $72
   sec
-  php
-  pla
+  php   ;;nok
+  pla   ;;nok
   sta $73
 
   ;; STORE ZERO, INA
