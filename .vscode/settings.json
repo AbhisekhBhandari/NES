@@ -8,6 +8,8 @@
         "stdbool.h": "c",
         "string.h": "c",
         "compare": "cpp",
-        "instruction.h": "c"
+        "instruction.h": "c",
+        "debug.h": "c",
+        "ncurses.h": "c"
     }
 }

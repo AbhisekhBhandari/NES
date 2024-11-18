@@ -7,8 +7,10 @@ CC = gcc
 #  -O0  = DO NOT Optimize generated code
 #  -std = C99  use the C99 standard language definition
 CFLAGS = -g -Wall 
-
 # THe LDFLAGS variable sets flags for linker
+LDLIBS = -lm -lncurses
+
+
 #  -lm = says to link in libm(the math library);
 
 LDFLAGS = -lm
@@ -17,7 +19,7 @@ LDFLAGS = -lm
 # If you add/change names of source files, here is where you edit
 
 # SRC_DIR = src/
-SOURCES = src/main.c src/cpu_6502.c src/instruction.c
+SOURCES = src/main.c src/cpu_6502.c src/instruction.c src/debug.c
 # FULL_SOURCES= $(addprefix $(SRC_DIR), $(SOURCES)) 
 
 # Defines the "OBJECTS" macro to be the same as the "SOURCES" macro except tgat every instance
@@ -35,7 +37,7 @@ TARGET = cpu_6502
 # @^ = main.o 
 
 $(TARGET) : $(OBJECTS)
-	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
 # gcc -g -Wall -std=c99 -o cpu_6502 main.o cpu_6502.o instructions.o -lm 
 

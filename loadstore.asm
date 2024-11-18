@@ -16,8 +16,8 @@ main:
   sta $01,X     ; sta zp,X      (at $0002)
   sta $0002,X   ; sta abs,X     (at $0003)
   sta $0002,Y   ; sta abs,Y     (at $0004)
-  sta ($03,X)   ; sta (zp,X)    (memory at $03+$01 is 06 00, so will store at $0006)
-  sta ($04),Y   ; sta (zp),Y    (memory at $0004 is 06 00, Y=02, will store at $0008)
+  sta ($03,X)   ; sta (zp,X)    (memory at $03+$01 is 06 00, so will store at $0006) 
+  sta ($04),Y   ; sta (zp),Y    (memory at $0004 is 06 00, Y=02, will store at $0008) ;;
 
   ; Memory from $0000-0004, 0006, 0008 should now be $06
 
@@ -106,6 +106,9 @@ main:
   tsx
   stx $66
 
+  ;; here 0070
+
+
   ;; PUSH/PULL COMMANDS
   ldx #$FF
   txs
@@ -113,9 +116,9 @@ main:
   lda #$AA
   ldx #$BB
   ldy #$CC
-  phy
-  phx
-  pha
+  phy   ;; ??  selected opcode
+  phx   ;; nop
+  pha   ;;
   ; Reverse the order
   lda #0
   ldx #0

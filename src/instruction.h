@@ -1,12 +1,35 @@
 #ifndef INSTRUCTION
 #define INSTRUCTION
 
+#include <stdbool.h>
 #include "cpu_6502.h"
+
+typedef enum {
+    ABSOLUTE,
+    ABSOLUTE_INDEXED_INDIRECT,
+    ABSOLUTE_INDEXED_X,
+    ABSOLUTE_INDEXED_Y,
+    ABSOLUTE_INDIRECT,
+    ACCUMULATOR,
+    IMMEDIATE,
+    IMPLIED,
+    PROGRAM_COUNTER_RELATIVE,
+    STACK,
+    ZERO_PAGE,
+    ZERO_PAGE_INDEXED_INDIRECT,
+    ZERO_PAGE_INDEXED_X,
+    ZERO_PAGE_INDEXED_Y,
+    ZERO_PAGE_INDIRECT,
+    ZERO_PAGE_INDIRECT_INDEXED_Y    
+
+}addressing_modes_t;
+
 
 struct instruction_t {
     char* opcode;
     void (*op_func)(cpu_6502_t*, struct instruction_t*);
-    uint8_t (*op_mode)(cpu_6502_t* cpu_6502);
+    addressing_modes_t addr_mode;
+    uint16_t (*op_mode)(cpu_6502_t* cpu_6502);
     uint8_t cycles;
 };
 
@@ -27,7 +50,6 @@ uint16_t zero_page_indexed_X(cpu_6502_t* cpu_6502); // zp,x
 uint16_t zero_page_indexed_Y(cpu_6502_t* cpu_6502); //zp, y
 uint16_t zero_page_indirect(cpu_6502_t* cpu_6502);  // zp(4)
 uint16_t zero_page_indirect_indexed_y(cpu_6502_t* cpu_6502); //(zp), y;
-
 
 
 // // instructions
@@ -92,98 +114,9 @@ void TYA(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup);
 
 
 
-static struct instruction_t lookup[256] = {};
 
+extern struct instruction_t lookup[256];
 
-
-// static struct instruction_t lookup[256] = {
-//     {"BRK", &BRK, &immediate_mode, 7}, {"ORA", &ORA, &zero_page_indexed_indirect_mode, 6}, {"???", &XXX, &implied_mode, 2},
-//     {"???", &XXX, &implied_mode, 8}, {"???", &NOP, &implied_mode, 3}, {"ORA", &ORA, &zero_page_mode, 3},
-//     {"ASL", &ASL, &zero_page_mode, 5}, {"???", &XXX, &implied_mode, 5}, {"PHP", &PHP, &implied_mode, 3},
-//     {"ORA", &ORA, &immediate_mode, 2}, {"ASL", &ASL, &accumulator_mode, 2}, {"???", &XXX, &implied_mode, 2},
-//     {"???", &NOP, &implied_mode, 4}, {"ORA", &ORA, &absolute_mode, 4}, {"ASL", &ASL, &absolute_mode, 6},
-//     {"???", &XXX, &implied_mode, 6}, {"BPL", &BPL, &program_counter_relative_mode, 2}, {"ORA", &ORA, &zero_page_indirect_indexed_y, 5},
-//     {"???", &XXX, &implied_mode, 2}, {"???", &XXX, &implied_mode, 8}, {"???", &NOP, &implied_mode, 4},
-//     {"ORA", &ORA, &zero_page_indexed_X, 4}, {"ASL", &ASL, &zero_page_indexed_X, 6}, {"???", &XXX, &implied_mode, 6},
-//     {"CLC", &CLC, &implied_mode, 2}, {"ORA", &ORA, &absolute_indexed_y_mode, 4}, {"???", &NOP, &implied_mode, 2},
-//     {"???", &XXX, &implied_mode, 7}, {"???", &NOP, &implied_mode, 4}, {"ORA", &ORA, &absolute_indexed_x_mode, 4},
-//     {"ASL", &ASL, &absolute_indexed_x_mode, 7}, {"???", &XXX, &implied_mode, 7}, {"JSR", &JSR, &absolute_mode, 6},
-//     {"AND", &AND, &zero_page_indexed_indirect_mode, 6}, {"???", &XXX, &implied_mode, 2}, {"???", &XXX, &implied_mode, 8},
-//     {"BIT", &BIT, &zero_page_mode, 3}, {"AND", &AND, &zero_page_mode, 3}, {"ROL", &ROL, &zero_page_mode, 5},
-//     {"???", &XXX, &implied_mode, 5}, {"PLP", &PLP, &implied_mode, 4}, {"AND", &AND, &immediate_mode, 2},
-//     {"ROL", &ROL, &accumulator_mode, 2}, {"???", &XXX, &implied_mode, 2}, {"BIT", &BIT, &absolute_mode, 4},
-//     {"AND", &AND, &absolute_mode, 4}, {"ROL", &ROL, &absolute_mode, 6}, {"???", &XXX, &implied_mode, 6},
-//     {"BMI", &BMI, &program_counter_relative_mode, 2}, {"AND", &AND, &zero_page_indirect_indexed_y, 5}, {"???", &XXX, &implied_mode, 2},
-//     {"???", &XXX, &implied_mode, 8}, {"???", &NOP, &implied_mode, 4}, {"AND", &AND, &zero_page_indexed_X, 4},
-//     {"ROL", &ROL, &zero_page_indexed_X, 6}, {"???", &XXX, &implied_mode, 6}, {"SEC", &SEC, &implied_mode, 2},
-//     {"AND", &AND, &absolute_indexed_y_mode, 4}, {"???", &NOP, &implied_mode, 2}, {"???", &XXX, &implied_mode, 7},
-//     {"???", &NOP, &implied_mode, 4}, {"AND", &AND, &absolute_indexed_x_mode, 4}, {"ROL", &ROL, &absolute_indexed_x_mode, 7},
-//     {"???", &XXX, &implied_mode, 7}, {"RTI", &RTI, &implied_mode, 6}, {"EOR", &EOR, &zero_page_indexed_indirect_mode, 6},
-//     {"???", &XXX, &implied_mode, 2}, {"???", &XXX, &implied_mode, 8}, {"???", &NOP, &implied_mode, 3},
-//     {"EOR", &EOR, &zero_page_mode, 3}, {"LSR", &LSR, &zero_page_mode, 5}, {"???", &XXX, &implied_mode, 5},
-//     {"PHA", &PHA, &implied_mode, 3}, {"EOR", &EOR, &immediate_mode, 2}, {"LSR", &LSR, &accumulator_mode, 2},
-//     {"???", &XXX, &implied_mode, 2}, {"JMP", &JMP, &absolute_mode, 3}, {"EOR", &EOR, &absolute_mode, 4},
-//     {"LSR", &LSR, &absolute_mode, 6}, {"???", &XXX, &implied_mode, 6}, {"BVC", &BVC, &program_counter_relative_mode, 2},
-//     {"EOR", &EOR, &zero_page_indirect_indexed_y, 5}, {"???", &XXX, &implied_mode, 2}, {"???", &XXX, &implied_mode, 8},
-//     {"???", &NOP, &implied_mode, 4}, {"EOR", &EOR, &zero_page_indexed_X, 4}, {"LSR", &LSR, &zero_page_indexed_X, 6},
-//     {"???", &XXX, &implied_mode, 6}, {"CLI", &CLI, &implied_mode, 2}, {"EOR", &EOR, &absolute_indexed_y_mode, 4},
-//     {"???", &NOP, &implied_mode, 2}, {"???", &XXX, &implied_mode, 7}, {"???", &NOP, &implied_mode, 4},
-//     {"EOR", &EOR, &absolute_indexed_x_mode, 4}, {"LSR", &LSR, &absolute_indexed_x_mode, 7}, {"???", &XXX, &implied_mode, 7},
-//     {"RTS", &RTS, &implied_mode, 6}, {"ADC", &ADC, &zero_page_indexed_indirect_mode, 6}, {"???", &XXX, &implied_mode, 2},
-//     {"???", &XXX, &implied_mode, 8}, {"???", &NOP, &implied_mode, 3}, {"ADC", &ADC, &zero_page_mode, 3},
-//     {"ROR", &ROR, &zero_page_mode, 5}, {"???", &XXX, &implied_mode, 5}, {"PLA", &PLA, &implied_mode, 4},
-//     {"ADC", &ADC, &immediate_mode, 2}, {"ROR", &ROR, &accumulator_mode, 2}, {"???", &XXX, &implied_mode, 2},
-//     {"JMP", &JMP, &absolute_indirect_mode, 5}, {"ADC", &ADC, &absolute_mode, 4}, {"ROR", &ROR, &absolute_mode, 6},
-//     {"???", &XXX, &implied_mode, 6}, {"BVS", &BVS, &program_counter_relative_mode, 2}, {"ADC", &ADC, &zero_page_indirect_indexed_y, 5},
-//     {"???", &XXX, &implied_mode, 2}, {"???", &XXX, &implied_mode, 8}, {"???", &NOP, &implied_mode, 4},
-//     {"ADC", &ADC, &zero_page_indexed_X, 4}, {"ROR", &ROR, &zero_page_indexed_X, 6}, {"???", &XXX, &implied_mode, 6},
-//     {"SEI", &SEI, &implied_mode, 2}, {"ADC", &ADC, &absolute_indexed_y_mode, 4}, {"???", &NOP, &implied_mode, 2},
-//     {"???", &XXX, &implied_mode, 7}, {"???", &NOP, &implied_mode, 4}, {"ADC", &ADC, &absolute_indexed_x_mode, 4},
-//     {"ROR", &ROR, &absolute_indexed_x_mode, 7}, {"???", &XXX, &implied_mode, 7}, {"???", &NOP, &implied_mode, 2},
-//     {"STA", &STA, &zero_page_indexed_indirect_mode, 6}, {"???", &NOP, &implied_mode, 2}, {"???", &XXX, &implied_mode, 2},
-//     {"STY", &STY, &zero_page_mode, 3}, {"STA", &STA, &zero_page_mode, 3}, {"STX", &STX, &zero_page_mode, 3},
-//     {"???", &XXX, &implied_mode, 3}, {"DEY", &DEY, &implied_mode, 2}, {"???", &NOP, &immediate_mode, 2},
-//     {"TXA", &TXA, &implied_mode, 2}, {"???", &XXX, &implied_mode, 2}, {"STY", &STY, &absolute_mode, 4},
-//     {"STA", &STA, &absolute_mode, 4}, {"STX", &STX, &absolute_mode, 4}, {"???", &XXX, &implied_mode, 4},
-//     {"BCC", &BCC, &program_counter_relative_mode, 2}, {"STA", &STA, &zero_page_indirect_indexed_y, 6}, {"???", &XXX, &implied_mode, 2},
-//     {"???", &XXX, &implied_mode, 8}, {"STY", &STY, &zero_page_indexed_X, 4}, {"STA", &STA, &zero_page_indexed_X, 4},
-//     {"STX", &STX, &zero_page_indexed_Y, 4}, {"???", &XXX, &implied_mode, 4}, {"TYA", &TYA, &implied_mode, 2},
-//     {"STA", &STA, &absolute_indexed_y_mode, 5}, {"TXS", &TXS, &implied_mode, 2}, {"???", &XXX, &implied_mode, 5},
-//     {"???", &NOP, &implied_mode, 5}, {"STA", &STA, &absolute_indexed_x_mode, 5}, {"???", &XXX, &implied_mode, 5},
-//     {"???", &XXX, &implied_mode, 7}, {"LDY", &LDY, &immediate_mode, 2}, {"LDA", &LDA, &zero_page_indexed_indirect_mode, 6},
-//     {"LDX", &LDX, &immediate_mode, 2}, {"???", &XXX, &implied_mode, 6}, {"LDY", &LDY, &zero_page_mode, 3},
-//     {"LDA", &LDA, &zero_page_mode, 3}, {"LDX", &LDX, &zero_page_mode, 3}, {"???", &XXX, &implied_mode, 3},
-//     {"TAY", &TAY, &implied_mode, 2}, {"LDA", &LDA, &immediate_mode, 2}, {"TAX", &TAX, &implied_mode, 2},
-//     {"???", &XXX, &implied_mode, 2}, {"LDY", &LDY, &absolute_mode, 4}, {"LDA", &LDA, &absolute_mode, 4},
-//     {"LDX", &LDX, &absolute_mode, 4}, {"???", &XXX, &implied_mode, 4}, {"BCS", &BCS, &program_counter_relative_mode, 2},
-//     {"LDA", &LDA, &zero_page_indirect_indexed_y, 5}, {"???", &XXX, &implied_mode, 2}, {"???", &XXX, &implied_mode, 8},
-//     {"LDY", &LDY, &zero_page_indexed_X, 4}, {"LDA", &LDA, &zero_page_indexed_X, 4}, {"LDX", &LDX, &zero_page_indexed_Y, 4},
-//     {"???", &XXX, &implied_mode, 4}, {"CLV", &CLV, &implied_mode, 2}, {"LDA", &LDA, &absolute_indexed_y_mode, 4},
-//     {"TSX", &TSX, &implied_mode, 2}, {"???", &XXX, &implied_mode, 4}, {"LDY", &LDY, &absolute_indexed_x_mode, 4},
-//     {"LDA", &LDA, &absolute_indexed_x_mode, 4}, {"LDX", &LDX, &absolute_indexed_y_mode, 4}, {"???", &XXX, &implied_mode, 4},
-//     {"CPY", &CPY, &immediate_mode, 2}, {"CMP", &CMP, &zero_page_indexed_indirect_mode, 6}, {"???", &NOP, &implied_mode, 2},
-//     {"???", &XXX, &implied_mode, 8}, {"CPY", &CPY, &zero_page_mode, 3}, {"CMP", &CMP, &zero_page_mode, 3},
-//     {"DEC", &DEC, &zero_page_mode, 5}, {"???", &XXX, &implied_mode, 5}, {"INY", &INY, &implied_mode, 2},
-//     {"CMP", &CMP, &immediate_mode, 2}, {"DEX", &DEX, &implied_mode, 2}, {"???", &XXX, &implied_mode, 2},
-//     {"CPY", &CPY, &absolute_mode, 4}, {"CMP", &CMP, &absolute_mode, 4}, {"DEC", &DEC, &absolute_mode, 6},
-//     {"???", &XXX, &implied_mode, 6}, {"BNE", &BNE, &program_counter_relative_mode, 2}, {"CMP", &CMP, &zero_page_indirect_indexed_y, 5},
-//     {"???", &XXX, &implied_mode, 2}, {"???", &XXX, &implied_mode, 8}, {"???", &NOP, &implied_mode, 4},
-//     {"CMP", &CMP, &zero_page_indexed_X, 4}, {"DEC", &DEC, &zero_page_indexed_X, 6}, {"???", &XXX, &implied_mode, 6},
-//     {"CLD", &CLD, &implied_mode, 2}, {"CMP", &CMP, &absolute_indexed_y_mode, 4}, {"NOP", &NOP, &implied_mode, 2},
-//     {"???", &XXX, &implied_mode, 7}, {"???", &NOP, &implied_mode, 4}, {"CMP", &CMP, &absolute_indexed_x_mode, 4},
-//     {"DEC", &DEC, &absolute_indexed_x_mode, 7}, {"???", &XXX, &implied_mode, 7}, {"CPX", &CPX, &immediate_mode, 2},
-//     {"SBC", &SBC, &zero_page_indexed_indirect_mode, 6}, {"???", &NOP, &implied_mode, 2}, {"???", &XXX, &implied_mode, 8},
-//     {"CPX", &CPX, &zero_page_mode, 3}, {"SBC", &SBC, &zero_page_mode, 3}, {"INC", &INC, &zero_page_mode, 5},
-//     {"???", &XXX, &implied_mode, 5}, {"INX", &INX, &implied_mode, 2}, {"SBC", &SBC, &immediate_mode, 2},
-//     {"NOP", &NOP, &implied_mode, 2}, {"???", &SBC, &implied_mode, 4}, {"CPX", &CPX, &absolute_mode, 4},
-//     {"SBC", &SBC, &absolute_mode, 4}, {"INC", &INC, &absolute_mode, 6}, {"???", &XXX, &implied_mode, 6},
-//     {"BEQ", &BEQ, &program_counter_relative_mode, 2}, {"SBC", &SBC, &zero_page_indirect_indexed_y, 5}, {"???", &XXX, &implied_mode, 2},
-//     {"???", &XXX, &implied_mode, 8}, {"???", &NOP, &implied_mode, 4}, {"SBC", &SBC, &zero_page_indexed_X, 4},
-//     {"INC", &INC, &zero_page_indexed_X, 6}, {"???", &XXX, &implied_mode, 6}, {"SED", &SED, &implied_mode, 2},
-//     {"SBC", &SBC, &absolute_indexed_y_mode, 4}, {"NOP", &NOP, &implied_mode, 2}, {"???", &XXX, &implied_mode, 7},
-//     {"???", &NOP, &implied_mode, 4}, {"SBC", &SBC, &absolute_indexed_x_mode, 4}, {"INC", &INC, &absolute_indexed_x_mode, 7},
-//     {"???", &XXX, &implied_mode, 7}
-// };
 
 
 

@@ -5,13 +5,37 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
-#include "instruction.h"
 
-#define TOTAL_MEMORY 65536
+
+
+//Memory Map
+
+    // 0000-00FF RAM used for zero page and indirect memory addressing
+    // operation.
+    // 0100-01FF RAM used for stack processing and for absolute addressi
+    // 0200-3FFF Normally RAM.
+    // 4000-7FFF Normally I/O
+    // 8000-FFF9 Program storage normally ROM.
+    // FFFA Vector low address for NMI.
+    // FFFB Vector high address for NMI.
+    // FFFC Vector low address for RESET.
+    // FFFD Vector high address for RESET.
+    // FFFE Vector low address for IRQ + BRK.
+    // FFFF Vector high address for IRQ + BRK.
+
+// -----------------------------------------------------------------------------
+
+#define TOTAL_MEMORY 0x10000
 #define STACK_SIZE 256
 #define STACK_START_PTR 0xFF
 #define ZERO_PAGE_START 0x0
 #define ZERO_PAGE_END 0x00FF
+#define RAM_SIZE (TOTAL_MEMORY)
+
+// ROM
+#define ROM_START   0x8000
+#define ROM_END     0xFFF9
+#define ROM_SIZE    (ROM_END - ROM_START + 1)
 
 
 // Flags bitmask 
@@ -24,6 +48,8 @@
 #define STATUS_OVERFLOW 0x40
 #define STATUS_NEGATIVE 0x80
 
+
+
 typedef struct  {
     uint8_t A_reg;          //accumulator 
     uint8_t Y_reg;          //Index Y register
@@ -35,32 +61,14 @@ typedef struct  {
 } cpu_6502_regs_t;
 
 typedef struct {
-    uint8_t ram[TOTAL_MEMORY - STACK_SIZE];          //2kb ram
+    uint8_t ram[RAM_SIZE];          //2kb ram
     cpu_6502_regs_t registers;
     uint16_t address_bus;       //address bus
     uint8_t stack[STACK_SIZE];
     
 } cpu_6502_t;
 
-// typedef enum {
-//     ABSOLUTE,
-//     ABSOLUTE_INDEXED_INDIRECT,
-//     ABSOLUTE_INDEXED_X,
-//     ABSOLUTE_INDEXED_Y,
-//     ABSOLUTE_INDIRECT,
-//     ACCUMULATOR,
-//     IMMEDIATE,
-//     IMPLIED,
-//     PROGRAM_COUNTER_RELATIVE,
-//     STACK,
-//     ZERO_PAGE,
-//     ZERO_PAGE_INDEXED_INDIRECT,
-//     ZERO_PAGE_INDEXED_X,
-//     ZERO_PAGE_INDEXED_Y,
-//     ZERO_PAGE_INDIRECT,
-//     ZERO_PAGE_INDIRECT_INDEXED_Y    
 
-// }addressing_modes_t;
 
 
 

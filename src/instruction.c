@@ -2,13 +2,324 @@
 
 
 
+struct instruction_t lookup[256] = {
+    // 0X00
+    {"BRK", &BRK,IMMEDIATE ,&immediate_mode, 7}, 
+    {"ORA", &ORA, ZERO_PAGE_INDIRECT, &zero_page_indexed_indirect_mode, 6},
+    {"???", &XXX, IMPLIED, &implied_mode, 2},
+    {"???", &XXX, IMPLIED, &implied_mode, 8},
+    {"???", &NOP, IMPLIED, &implied_mode, 3}, // TSB
+    {"ORA", &ORA, ZERO_PAGE, &zero_page_mode, 3},
+    {"ASL", &ASL, ZERO_PAGE, &zero_page_mode, 5},
+    {"???", &XXX, IMPLIED, &implied_mode, 5},   //RMB0
+    {"PHP", &PHP, IMPLIED, &implied_mode, 3},
+    {"ORA", &ORA, IMMEDIATE, &immediate_mode, 2},
+    {"ASL", &ASL, ACCUMULATOR, &accumulator_mode, 2}, 
+    {"???", &XXX, IMPLIED, &implied_mode, 2},
+    {"???", &NOP, IMPLIED, &implied_mode, 4},   //TSB
+    {"ORA", &ORA, ABSOLUTE, &absolute_mode, 4},
+    {"ASL", &ASL, ABSOLUTE, &absolute_mode, 6},
+    {"???", &XXX, IMPLIED,  &implied_mode, 6},  //BBR0
+    // 0x0F
+
+    // Ox10
+    {"BPL", &BPL, PROGRAM_COUNTER_RELATIVE, &program_counter_relative_mode, 2},
+    {"ORA", &ORA, ZERO_PAGE_INDIRECT_INDEXED_Y, &zero_page_indirect_indexed_y, 5},
+    {"???", &XXX, IMPLIED, &implied_mode, 2},           //ORA
+    {"???", &XXX, IMPLIED, &implied_mode, 8},
+    {"???", &NOP,IMPLIED, &implied_mode, 4},        //TRB
+    {"ORA", &ORA, ZERO_PAGE_INDEXED_X, &zero_page_indexed_X, 4},
+    {"ASL", &ASL, ZERO_PAGE_INDEXED_X, &zero_page_indexed_X, 6},
+    {"???", &XXX, IMPLIED, &implied_mode, 6},   //RMB1
+    {"CLC", &CLC, IMPLIED, &implied_mode, 2},
+    {"ORA", &ORA, ABSOLUTE_INDEXED_Y, &absolute_indexed_y_mode, 4},
+    {"???", &NOP, IMPLIED, &implied_mode, 2}, //inc
+    {"???", &XXX, IMPLIED, &implied_mode, 7},   
+    {"???", &NOP, IMPLIED, &implied_mode, 4},  //TRB
+    {"ORA", &ORA, ABSOLUTE_INDEXED_X, &absolute_indexed_x_mode, 4},
+    {"ASL", &ASL, ABSOLUTE_INDEXED_X, &absolute_indexed_x_mode, 7},
+    {"???", &XXX, IMPLIED, &implied_mode, 7},  // BBR1
+    //0X1F
+
+
+    // 0x20
+    {"JSR", &JSR,  ABSOLUTE, &absolute_mode, 6},
+    {"AND", &AND, ZERO_PAGE_INDEXED_INDIRECT, &zero_page_indexed_indirect_mode, 6},
+    {"???", &XXX, IMPLIED, &implied_mode, 2},
+    {"???", &XXX, IMPLIED, &implied_mode, 8},
+    {"BIT", &BIT, ZERO_PAGE, &zero_page_mode, 3},
+    {"AND", &AND, ZERO_PAGE, &zero_page_mode, 3},
+    {"ROL", &ROL, ZERO_PAGE, &zero_page_mode, 5},
+    {"???", &XXX, IMPLIED, &implied_mode, 5},   //RMB2
+    {"PLP", &PLP, IMPLIED, &implied_mode, 4},
+    {"AND", &AND, IMMEDIATE, &immediate_mode, 2},
+    {"ROL", &ROL, ACCUMULATOR, &accumulator_mode, 2},
+    {"???", &XXX, IMPLIED, &implied_mode, 2}, 
+    {"BIT", &BIT, ABSOLUTE, &absolute_mode, 4},
+    {"AND", &AND, ABSOLUTE,&absolute_mode, 4},
+    {"ROL", &ROL, ABSOLUTE, &absolute_mode, 6}, 
+    {"???", &XXX, IMPLIED, &implied_mode, 6},   //BBR2
+    // 0X2F
+
+    // 0x30
+    {"BMI", &BMI, PROGRAM_COUNTER_RELATIVE, &program_counter_relative_mode, 2},
+     {"AND", &AND, ZERO_PAGE_INDEXED_Y, &zero_page_indirect_indexed_y, 5},
+      {"???", &XXX, IMPLIED, &implied_mode, 2}, //AND
+    {"???", &XXX, IMPLIED, &implied_mode, 8},
+     {"???", &NOP, IMPLIED, &implied_mode, 4}, //BIT
+     {"AND", &AND, ZERO_PAGE_INDEXED_X, &zero_page_indexed_X, 4},
+    {"ROL", &ROL, ZERO_PAGE_INDEXED_X, &zero_page_indexed_X, 6}, 
+    {"???", &XXX, IMPLIED, &implied_mode, 6},   //RMB3
+    {"SEC", &SEC, IMPLIED, &implied_mode, 2},
+    {"AND", &AND, ABSOLUTE_INDEXED_Y, &absolute_indexed_y_mode, 4},
+     {"???", &NOP, IMPLIED, &implied_mode, 2},  //DEC
+      {"???", &XXX, IMPLIED, &implied_mode, 7},
+    {"???", &NOP, IMPLIED, &implied_mode, 4},   //BIT
+     {"AND", &AND, ABSOLUTE_INDEXED_X, &absolute_indexed_x_mode, 4},
+      {"ROL", &ROL, ABSOLUTE_INDEXED_X, &absolute_indexed_x_mode, 7},
+    {"???", &XXX, IMPLIED, &implied_mode, 7},       //BBR3
+    //0x3F
+    
+    // 0x40
+     {"RTI", &RTI, IMPLIED, &implied_mode, 6},
+      {"EOR", &EOR, ZERO_PAGE_INDEXED_INDIRECT, &zero_page_indexed_indirect_mode, 6},
+    {"???", &XXX, IMPLIED, &implied_mode, 2},
+    {"???", &XXX, IMPLIED, &implied_mode, 8},
+    {"???", &NOP, IMPLIED, &implied_mode, 3},
+    {"EOR", &EOR, ZERO_PAGE, &zero_page_mode, 3},
+    {"LSR", &LSR, ZERO_PAGE, &zero_page_mode, 5}, 
+    {"???", &XXX, IMPLIED, &implied_mode, 5},   //RMB4
+    {"PHA", &PHA, IMPLIED, &implied_mode, 3}, 
+    {"EOR", &EOR, IMMEDIATE, &immediate_mode, 2}, 
+    {"LSR", &LSR, ACCUMULATOR, &accumulator_mode, 2},
+    {"???", &XXX, IMPLIED, &implied_mode, 2},
+     {"JMP", &JMP, ABSOLUTE , &absolute_mode, 3},
+      {"EOR", &EOR, ABSOLUTE , &absolute_mode, 4},
+    {"LSR", &LSR, ABSOLUTE , &absolute_mode, 6},
+     {"???", &XXX, IMPLIED, &implied_mode, 6},  //BBR4
+    //0x4F
+
+    //0x50
+      {"BVC", &BVC, PROGRAM_COUNTER_RELATIVE ,&program_counter_relative_mode, 2},
+    {"EOR", &EOR, ZERO_PAGE_INDIRECT_INDEXED_Y,&zero_page_indirect_indexed_y, 5}, 
+    {"???", &XXX, IMPLIED, &implied_mode, 2},   //EOR
+    {"???", &XXX, IMPLIED, &implied_mode, 8},
+    {"???", &NOP, IMPLIED, &implied_mode, 4},
+     {"EOR", &EOR, ZERO_PAGE_INDEXED_X,&zero_page_indexed_X, 4},
+      {"LSR", &LSR, ZERO_PAGE_INDEXED_X,&zero_page_indexed_X, 6},
+    {"???", &XXX, IMPLIED, &implied_mode, 6},   //RMB5
+     {"CLI", &CLI, IMPLIED, &implied_mode, 2},
+      {"EOR", &EOR, ABSOLUTE_INDEXED_Y,&absolute_indexed_y_mode, 4},
+    {"???", &NOP, IMPLIED, &implied_mode, 2},   //PHY
+     {"???", &XXX, IMPLIED, &implied_mode, 7},
+      {"???", &NOP, IMPLIED, &implied_mode, 4},
+    {"EOR", &EOR, ABSOLUTE_INDEXED_X ,&absolute_indexed_x_mode, 4},
+     {"LSR", &LSR, ABSOLUTE_INDEXED_X ,&absolute_indexed_x_mode, 7},
+      {"???", &XXX, IMPLIED, &implied_mode, 7}, //BBR5
+    //0x5F
+
+    //0x60
+    {"RTS", &RTS, STACK, &implied_mode, 6},
+     {"ADC", &ADC, ZERO_PAGE_INDEXED_INDIRECT,&zero_page_indexed_indirect_mode, 6},
+      {"???", &XXX, IMPLIED, &implied_mode, 2},
+    {"???", &XXX, IMPLIED, &implied_mode, 8},
+     {"???", &NOP, IMPLIED, &implied_mode, 3},  //STZ
+      {"ADC", &ADC, ZERO_PAGE, &zero_page_mode, 3},
+    {"ROR", &ROR, ZERO_PAGE, &zero_page_mode, 5}, 
+    {"???", &XXX, IMPLIED, &implied_mode, 5},   //RMB6
+    {"PLA", &PLA, IMPLIED, &implied_mode, 4},
+    {"ADC", &ADC, IMMEDIATE, &immediate_mode, 2}, 
+    {"ROR", &ROR, ACCUMULATOR, &accumulator_mode, 2}, 
+    {"???", &XXX, IMPLIED, &implied_mode, 2},
+    {"JMP", &JMP, ABSOLUTE_INDIRECT, &absolute_indirect_mode, 5}, 
+    {"ADC", &ADC, ABSOLUTE , &absolute_mode, 4}, 
+    {"ROR", &ROR, ABSOLUTE , &absolute_mode, 6},
+    {"???", &XXX, IMPLIED, &implied_mode, 6},   //BBR6
+    //0x6F
+
+    //0x70
+    {"BVS", &BVS, PROGRAM_COUNTER_RELATIVE ,&program_counter_relative_mode, 2}, 
+    {"ADC", &ADC, ZERO_PAGE_INDIRECT_INDEXED_Y,&zero_page_indirect_indexed_y, 5},
+    {"???", &XXX, IMPLIED, &implied_mode, 2},   //ADC
+    {"???", &XXX, IMPLIED, &implied_mode, 8}, 
+    {"???", &NOP, IMPLIED, &implied_mode, 4},   //STZ
+    {"ADC", &ADC, ZERO_PAGE_INDEXED_X,&zero_page_indexed_X, 4},
+    {"ROR", &ROR, ZERO_PAGE_INDEXED_X,&zero_page_indexed_X, 6}, 
+    {"???", &XXX, IMPLIED, &implied_mode, 6},   //RMB7
+    {"SEI", &SEI, IMPLIED, &implied_mode, 2}, 
+    {"ADC", &ADC, ABSOLUTE_INDEXED_Y,&absolute_indexed_y_mode, 4}, 
+    {"???", &NOP, IMPLIED, &implied_mode, 2},   //PLY
+    {"???", &XXX, IMPLIED, &implied_mode, 7}, 
+    {"???", &NOP, IMPLIED, &implied_mode, 4},   //JMP
+    {"ADC", &ADC, ABSOLUTE_INDEXED_X ,&absolute_indexed_x_mode, 4},
+    {"ROR", &ROR, ABSOLUTE_INDEXED_X ,&absolute_indexed_x_mode, 7}, 
+    {"???", &XXX, IMPLIED, &implied_mode, 7},       //BBR7
+    //0x7F
+
+
+    // Ox80
+    {"???", &NOP, IMPLIED, &implied_mode, 2},   //BRA
+    {"STA", &STA, ZERO_PAGE_INDEXED_INDIRECT,&zero_page_indexed_indirect_mode, 6}, 
+    {"???", &NOP, IMPLIED, &implied_mode, 2}, 
+    {"???", &XXX, IMPLIED, &implied_mode, 2},
+    {"STY", &STY, ZERO_PAGE, &zero_page_mode, 3}, 
+    {"STA", &STA, ZERO_PAGE, &zero_page_mode, 3}, 
+    {"STX", &STX, ZERO_PAGE, &zero_page_mode, 3},
+    {"???", &XXX, IMPLIED, &implied_mode, 3},   //SMB0
+    {"DEY", &DEY, IMPLIED, &implied_mode, 2}, 
+    {"???", &NOP, IMMEDIATE, &immediate_mode, 2},   //BIT
+    {"TXA", &TXA, IMPLIED, &implied_mode, 2}, 
+    {"???", &XXX, IMPLIED, &implied_mode, 2}, 
+    {"STY", &STY, ABSOLUTE , &absolute_mode, 4},
+    {"STA", &STA, ABSOLUTE , &absolute_mode, 4}, 
+    {"STX", &STX, ABSOLUTE , &absolute_mode, 4}, 
+    {"???", &XXX, IMPLIED, &implied_mode, 4},       //BBS0
+    //0x8F
+
+    //0x90
+    {"BCC", &BCC, PROGRAM_COUNTER_RELATIVE ,&program_counter_relative_mode, 2}, 
+    {"STA", &STA, ZERO_PAGE_INDIRECT_INDEXED_Y,&zero_page_indirect_indexed_y, 6}, 
+    {"???", &XXX, IMPLIED, &implied_mode, 2},   //STA
+    {"???", &XXX, IMPLIED, &implied_mode, 8}, 
+    {"STY", &STY, ZERO_PAGE_INDEXED_X,&zero_page_indexed_X, 4}, 
+    {"STA", &STA, ZERO_PAGE_INDEXED_X,&zero_page_indexed_X, 4},
+    {"STX", &STX,ZERO_PAGE_INDEXED_Y, &zero_page_indexed_Y, 4}, 
+    {"???", &XXX, IMPLIED, &implied_mode, 4},   //SMB1
+    {"TYA", &TYA, IMPLIED, &implied_mode, 2},
+    {"STA", &STA, ABSOLUTE_INDEXED_Y,&absolute_indexed_y_mode, 5}, 
+    {"TXS", &TXS, IMPLIED, &implied_mode, 2}, 
+    {"???", &XXX, IMPLIED, &implied_mode, 5},
+    {"???", &NOP, IMPLIED, &implied_mode, 5},   //STZ
+    {"STA", &STA, ABSOLUTE_INDEXED_X ,&absolute_indexed_x_mode, 5}, 
+    {"???", &XXX, IMPLIED, &implied_mode, 5},       //STZ
+    {"???", &XXX, IMPLIED, &implied_mode, 7},       //BBS2
+    //0x9F
+
+
+    //0x0A
+    {"LDY", &LDY, IMMEDIATE, &immediate_mode, 2}, 
+    {"LDA", &LDA, ZERO_PAGE_INDEXED_INDIRECT,&zero_page_indexed_indirect_mode, 6},
+    {"LDX", &LDX, IMMEDIATE, &immediate_mode, 2}, 
+    {"???", &XXX, IMPLIED, &implied_mode, 6}, 
+    {"LDY", &LDY, ZERO_PAGE, &zero_page_mode, 3},
+    {"LDA", &LDA, ZERO_PAGE, &zero_page_mode, 3}, 
+    {"LDX", &LDX, ZERO_PAGE, &zero_page_mode, 3}, 
+    {"???", &XXX, IMPLIED, &implied_mode, 3},   //SMB2
+    {"TAY", &TAY, IMPLIED, &implied_mode, 2}, 
+    {"LDA", &LDA, IMMEDIATE, &immediate_mode, 2}, 
+    {"TAX", &TAX, IMPLIED, &implied_mode, 2},
+    {"???", &XXX, IMPLIED, &implied_mode, 2}, 
+    {"LDY", &LDY, ABSOLUTE , &absolute_mode, 4}, 
+    {"LDA", &LDA, ABSOLUTE , &absolute_mode, 4},
+    {"LDX", &LDX, ABSOLUTE , &absolute_mode, 4}, 
+    {"???", &XXX, IMPLIED, &implied_mode, 4},   //BBS3
+    //0xAF
+
+    //0xB0
+    {"BCS", &BCS, PROGRAM_COUNTER_RELATIVE ,&program_counter_relative_mode, 2},
+    {"LDA", &LDA, ZERO_PAGE_INDIRECT_INDEXED_Y,&zero_page_indirect_indexed_y, 5}, 
+    {"???", &XXX, IMPLIED, &implied_mode, 2},       //LDA
+    {"???", &XXX, IMPLIED, &implied_mode, 8},
+    {"LDY", &LDY, ZERO_PAGE_INDEXED_X,&zero_page_indexed_X, 4}, 
+    {"LDA", &LDA, ZERO_PAGE_INDEXED_X,&zero_page_indexed_X, 4}, 
+    {"LDX", &LDX, ZERO_PAGE_INDEXED_Y, &zero_page_indexed_Y, 4},
+    {"???", &XXX, IMPLIED, &implied_mode, 4},       //SMB3
+    {"CLV", &CLV, IMPLIED, &implied_mode, 2}, 
+    {"LDA", &LDA, ABSOLUTE_INDEXED_Y,&absolute_indexed_y_mode, 4},
+    {"TSX", &TSX, IMPLIED, &implied_mode, 2}, 
+    {"???", &XXX, IMPLIED, &implied_mode, 4}, 
+    {"LDY", &LDY, ABSOLUTE_INDEXED_X ,&absolute_indexed_x_mode, 4},
+    {"LDA", &LDA, ABSOLUTE_INDEXED_X ,&absolute_indexed_x_mode, 4}, 
+    {"LDX", &LDX, ABSOLUTE_INDEXED_Y,&absolute_indexed_y_mode, 4}, 
+    {"???", &XXX, IMPLIED, &implied_mode, 4},   //BBS3
+    //0xBF
+
+    //0xC0
+    {"CPY", &CPY, IMMEDIATE, &immediate_mode, 2}, 
+    {"CMP", &CMP, ZERO_PAGE_INDEXED_INDIRECT,&zero_page_indexed_indirect_mode, 6}, 
+    {"???", &NOP, IMPLIED, &implied_mode, 2},
+    {"???", &XXX, IMPLIED, &implied_mode, 8}, 
+    {"CPY", &CPY, ZERO_PAGE, &zero_page_mode, 3}, 
+    {"CMP", &CMP, ZERO_PAGE, &zero_page_mode, 3},
+    {"DEC", &DEC, ZERO_PAGE, &zero_page_mode, 5}, 
+    {"???", &XXX, IMPLIED, &implied_mode, 5},   //SMB4
+    {"INY", &INY, IMPLIED, &implied_mode, 2},
+    {"CMP", &CMP, IMMEDIATE, &immediate_mode, 2}, 
+    {"DEX", &DEX, IMPLIED, &implied_mode, 2}, 
+    {"???", &XXX, IMPLIED, &implied_mode, 2},   //WAI
+    {"CPY", &CPY, ABSOLUTE , &absolute_mode, 4}, 
+    {"CMP", &CMP, ABSOLUTE , &absolute_mode, 4}, 
+    {"DEC", &DEC, ABSOLUTE , &absolute_mode, 6},
+    {"???", &XXX, IMPLIED, &implied_mode, 6},   //BBS5
+    //0XCF
+
+    //0xD0
+    {"BNE", &BNE, PROGRAM_COUNTER_RELATIVE ,&program_counter_relative_mode, 2}, 
+    {"CMP", &CMP, ZERO_PAGE_INDIRECT_INDEXED_Y,&zero_page_indirect_indexed_y, 5},
+    {"???", &XXX, IMPLIED, &implied_mode, 2},   //CMP
+    {"???", &XXX, IMPLIED, &implied_mode, 8}, 
+    {"???", &NOP, IMPLIED, &implied_mode, 4},
+    {"CMP", &CMP, ZERO_PAGE_INDEXED_X,&zero_page_indexed_X, 4}, 
+    {"DEC", &DEC, ZERO_PAGE_INDEXED_X,&zero_page_indexed_X, 6}, 
+    {"???", &XXX, IMPLIED, &implied_mode, 6},       //SMB5
+    {"CLD", &CLD, IMPLIED, &implied_mode, 2}, 
+    {"CMP", &CMP, ABSOLUTE_INDEXED_Y,&absolute_indexed_y_mode, 4}, 
+    {"NOP", &NOP, IMPLIED, &implied_mode, 2},       //PHX
+    {"???", &XXX, IMPLIED, &implied_mode, 7},   //STP
+    {"???", &NOP, IMPLIED, &implied_mode, 4}, 
+    {"CMP", &CMP, ABSOLUTE_INDEXED_X ,&absolute_indexed_x_mode, 4},
+    {"DEC", &DEC, ABSOLUTE_INDEXED_X ,&absolute_indexed_x_mode, 7}, 
+    {"???", &XXX, IMPLIED, &implied_mode, 7},   //BBS5
+    //0xDF
+
+    // 0xE0
+    {"CPX", &CPX, IMMEDIATE, &immediate_mode, 2},
+    {"SBC", &SBC, ZERO_PAGE_INDEXED_INDIRECT,&zero_page_indexed_indirect_mode, 6}, 
+    {"???", &NOP, IMPLIED, &implied_mode, 2}, 
+    {"???", &XXX, IMPLIED, &implied_mode, 8},
+    {"CPX", &CPX, ZERO_PAGE, &zero_page_mode, 3}, 
+    {"SBC", &SBC, ZERO_PAGE, &zero_page_mode, 3}, 
+    {"INC", &INC, ZERO_PAGE, &zero_page_mode, 5},
+    {"???", &XXX, IMPLIED, &implied_mode, 5},   //SMB6
+    {"INX", &INX, IMPLIED, &implied_mode, 2}, 
+    {"SBC", &SBC, IMMEDIATE, &immediate_mode, 2},
+    {"NOP", &NOP, IMPLIED, &implied_mode, 2}, 
+    {"???", &SBC, IMPLIED, &implied_mode, 4}, 
+    {"CPX", &CPX, ABSOLUTE , &absolute_mode, 4},
+    {"SBC", &SBC, ABSOLUTE , &absolute_mode, 4}, 
+    {"INC", &INC, ABSOLUTE , &absolute_mode, 6}, 
+    {"???", &XXX, IMPLIED, &implied_mode, 6},   //BBS6
+    //0xEF
+
+    //0XF0
+    {"BEQ", &BEQ, PROGRAM_COUNTER_RELATIVE ,&program_counter_relative_mode, 2}, 
+    {"SBC", &SBC, ZERO_PAGE_INDIRECT_INDEXED_Y,&zero_page_indirect_indexed_y, 5}, 
+    {"???", &XXX, IMPLIED, &implied_mode, 2},       //SBC
+    {"???", &XXX, IMPLIED, &implied_mode, 8}, 
+    {"???", &NOP, IMPLIED, &implied_mode, 4}, 
+    {"SBC", &SBC, ZERO_PAGE_INDEXED_X,&zero_page_indexed_X, 4},
+    {"INC", &INC, ZERO_PAGE_INDEXED_X,&zero_page_indexed_X, 6}, 
+    {"???", &XXX, IMPLIED, &implied_mode, 6},   //SMB7
+    {"SED", &SED, IMPLIED, &implied_mode, 2},
+    {"SBC", &SBC, ABSOLUTE_INDEXED_Y,&absolute_indexed_y_mode, 4}, 
+    {"NOP", &NOP, IMPLIED, &implied_mode, 2},       //PLX
+    {"???", &XXX, IMPLIED, &implied_mode, 7},
+    {"???", &NOP, IMPLIED, &implied_mode, 4}, 
+    {"SBC", &SBC, ABSOLUTE_INDEXED_X ,&absolute_indexed_x_mode, 4}, 
+    {"INC", &INC, ABSOLUTE_INDEXED_X ,&absolute_indexed_x_mode, 7},
+    {"???", &XXX, IMPLIED, &implied_mode, 7}    //BBS7
+    // 0xFF
+
+};
+
+
+
 
 
 void branch(cpu_6502_t* cpu_6502) {
     int8_t offset = fetch_next_byte(cpu_6502);
     cpu_6502->registers.PC_reg  += offset;     
 }
-
 
 
 
@@ -20,9 +331,22 @@ uint16_t absolute_mode(cpu_6502_t* cpu_6502) {
 
 };
 // Absolute indexed indirexct:(a, x)
-uint16_t absolute_indexed_indirect_mode(cpu_6502_t* cpu_6502){
+uint16_t absolute_indexed_indirect_mode(cpu_6502_t* cpu_6502) {
+    // Fetch the base address from the next two bytes in memory
+    uint16_t base_address = fetch_next_byte(cpu_6502) | (fetch_next_byte(cpu_6502) << 8);
 
-};
+    // Add the value in the X register to compute the indirect address
+    uint16_t indirect_address = base_address + cpu_6502->registers.X_reg;
+
+    // Fetch the effective address from the indirect address in memory
+    uint16_t effective_address = cpu_6502->ram[indirect_address] |
+                                (cpu_6502->ram[indirect_address + 1] << 8);
+
+    // Update the Program Counter to the effective address
+    // cpu_6502->registers.PC_reg = effective_address;
+
+    return effective_address;
+}
 
 // Absolute Indexed with X:  a,x
 uint16_t absolute_indexed_x_mode(cpu_6502_t* cpu_6502) {
@@ -58,7 +382,7 @@ uint16_t accumulator_mode(cpu_6502_t* cpu_6502){
 
 //  Immediate Addressing  #
 uint16_t immediate_mode(cpu_6502_t* cpu_6502) {
-    return fetch_next_byte(cpu_6502);
+    return 0;
 }
 
 // Implied I
@@ -83,14 +407,18 @@ uint16_t stack_mode(cpu_6502_t* cpu_6502) {
 
 // Zero Page zp
 uint16_t zero_page_mode(cpu_6502_t* cpu_6502) {
-    return fetch_next_byte(cpu_6502);
+    uint16_t fetched_byte = fetch_next_byte(cpu_6502);
+    printf("ZERO MODE RETURNED: %4X", (fetched_byte & 0x00FF));
+    return (fetched_byte & 0x00FF);
 
 }
 
 // Zero Page Indexed Indirect (zp, x)
 uint16_t zero_page_indexed_indirect_mode(cpu_6502_t* cpu_6502) {
-    uint8_t zero_page_lower = fetch_next_byte(cpu_6502);
-    return (zero_page_lower + cpu_6502->registers.X_reg);
+    uint16_t zero_page_address = fetch_next_byte(cpu_6502);
+    uint16_t indirect_address = zero_page_address + cpu_6502->registers.X_reg;
+    uint16_t effective_address = cpu_6502->ram[indirect_address];
+    return effective_address;
 }
 
 // Zero page indexed with X zp,x
@@ -116,9 +444,8 @@ uint16_t zero_page_indirect(cpu_6502_t* cpu_6502) {
 // Zero page indirect indexed with y: (zp),y
 uint16_t zero_page_indirect_indexed_y(cpu_6502_t* cpu_6502) {
     uint16_t indirect_base_address = fetch_next_byte(cpu_6502);
-    uint16_t operand_address = indirect_base_address + cpu_6502->registers.Y_reg;
-
-    return operand_address;
+    uint16_t effective_address = cpu_6502->ram[indirect_base_address] + cpu_6502->registers.Y_reg;
+    return effective_address;
 
 };
 
@@ -165,16 +492,58 @@ void AND(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
 }
 
 void ASL(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup){
-    // shifts to the left by 1 byte: memory or accumulator
-    if(selected_lookup->op_mode == accumulator_mode) {
-        cpu_6502->registers.A_reg <<= 1;
-        return;
-    }    
-    uint16_t memory_addr = selected_lookup->op_mode(cpu_6502);
-    cpu_6502->ram[memory_addr] <<= 1;
-    
-};
+    // Shifts to the left by 1 byte: memory or accumulator
+    if (selected_lookup->addr_mode == ACCUMULATOR) {
+        // Save the previous MSB (bit 7) for the carry flag
+        bool carry = cpu_6502->registers.A_reg & 0x80;
 
+        // Shift the accumulator left by 1 bit
+        cpu_6502->registers.A_reg <<= 1;
+
+        // Update the carry flag (bit 7 of the accumulator before the shift)
+        if (carry) {
+            cpu_6502->registers.status_regs |= STATUS_CARRY;
+        } else {
+            cpu_6502->registers.status_regs &= ~STATUS_CARRY;
+        }
+
+        // Update the zero flag (set if result is zero)
+        if (cpu_6502->registers.A_reg == 0) {
+            cpu_6502->registers.status_regs |= STATUS_ZERO;
+        } else {
+            cpu_6502->registers.status_regs &= ~STATUS_ZERO;
+        }
+
+    } else {
+        uint16_t memory_addr = selected_lookup->op_mode(cpu_6502);
+        
+        // Get the value from memory
+        uint8_t value = cpu_6502->ram[memory_addr];
+        
+        // Save the previous MSB (bit 7) for the carry flag
+        bool carry = value & 0x80;
+
+        // Shift the value in memory left by 1 bit
+        value <<= 1;
+
+        // Update the carry flag (bit 7 of the value before the shift)
+        if (carry) {
+            cpu_6502->registers.status_regs |= STATUS_CARRY;
+        } else {
+            cpu_6502->registers.status_regs &= ~STATUS_CARRY;
+        }
+
+        // Update the zero flag (set if result is zero)
+        if (value == 0) {
+            cpu_6502->registers.status_regs |= STATUS_ZERO;
+        } else {
+            cpu_6502->registers.status_regs &= ~STATUS_ZERO;
+        }
+
+        // Store the updated value back in memory
+        cpu_6502->ram[memory_addr] = value;
+    }
+}
 // BCC - Branch if Carry Clear
 void BCC(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
     //  PC = PC + 2 + memory(signed)
@@ -252,7 +621,9 @@ void BNE(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
 
 }
 
-// BPL - Branch if Plus
+// BPL - Branch if Plus    uint8_t operand;
+
+
 void BPL(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
     // If negativity is clear
         if(!(cpu_6502->registers.status_regs & STATUS_NEGATIVE)) {
@@ -387,7 +758,6 @@ void DEC(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
 
 //DEX - decremet x
 void DEX(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
-    uint16_t memory_address = selected_lookup->op_mode(cpu_6502);
     uint8_t result = --cpu_6502->registers.X_reg;
     
     //Update zero flag
@@ -401,7 +771,6 @@ void DEX(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
 
 // DEY - decrement Y
 void DEY(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
-    uint16_t memory_address = selected_lookup->op_mode(cpu_6502);
     uint8_t result = --cpu_6502->registers.Y_reg;
     
     //Update zero flag
@@ -416,9 +785,16 @@ void DEY(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
 // EOR - Bitwise Exclusive OR
 void EOR(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
     //  A= A ^ Memory
-    uint16_t memory_address = selected_lookup->op_mode(cpu_6502);
-    uint8_t result = cpu_6502->registers.A_reg ^ cpu_6502->ram[memory_address];
+    uint8_t operand;
+    if(selected_lookup->addr_mode == IMMEDIATE){
+        operand = fetch_next_byte(cpu_6502);
 
+    }else{
+        uint16_t memory_address = selected_lookup->op_mode(cpu_6502);
+        operand = cpu_6502->ram[memory_address];
+    }
+    uint8_t result = cpu_6502->registers.A_reg ^ operand;
+    cpu_6502->registers.A_reg = result;
     // set zero flag
     cpu_6502->registers.status_regs = 
         (cpu_6502->registers.status_regs & ~STATUS_ZERO) | (result == 0 ? STATUS_ZERO : 0);
@@ -445,7 +821,6 @@ void INC(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
 
 // INX - Increment X
 void INX(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
-    uint16_t memory_address = selected_lookup->op_mode(cpu_6502);
     uint8_t result = ++cpu_6502->registers.X_reg;
     
     //Update zero flag
@@ -459,7 +834,6 @@ void INX(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
 
 // INY - Increment Y
 void INY(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
-    uint16_t memory_address = selected_lookup->op_mode(cpu_6502);
     uint8_t result = ++cpu_6502->registers.Y_reg;
     
     //Update zero flag
@@ -491,11 +865,18 @@ void JSR(cpu_6502_t* cpu_6502_t, struct instruction_t* selectect_lookup) {
 //LDA - Load A
 void LDA(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
     // loads memory into accumulator
-    uint16_t memory_address = selected_lookup->op_mode(cpu_6502);
-    uint8_t result = cpu_6502->ram[memory_address];
+    uint8_t result;
+    if(selected_lookup->addr_mode == IMMEDIATE)
+    {
+        result = fetch_next_byte(cpu_6502);
+    }else {
+        uint16_t memory_address = selected_lookup->op_mode(cpu_6502);
+        result = cpu_6502->ram[memory_address];
+    }
     cpu_6502->registers.A_reg = result;
     
-        //Update zero flag
+        //Update zero flag    if
+
     cpu_6502->registers.status_regs = 
         (cpu_6502->registers.status_regs & ~STATUS_ZERO) | (result == 0 ? STATUS_ZERO : 0);
 
@@ -507,8 +888,14 @@ void LDA(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
 // LDX -load x
 void LDX(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
     // loads memory into accumulator
-    uint16_t memory_address = selected_lookup->op_mode(cpu_6502);
-    uint8_t result = cpu_6502->ram[memory_address];
+    uint8_t result;
+    if(selected_lookup->addr_mode == IMMEDIATE)
+    {
+        result = fetch_next_byte(cpu_6502);
+    } else {
+        uint16_t memory_address = selected_lookup->op_mode(cpu_6502);
+        result = cpu_6502->ram[memory_address];
+    }
     cpu_6502->registers.X_reg = result;
     
         //Update zero flag
@@ -523,8 +910,13 @@ void LDX(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
 // LDY - load Y
 void LDY(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
     // loads memory into accumulator
-    uint16_t memory_address = selected_lookup->op_mode(cpu_6502);
-    uint8_t result = cpu_6502->ram[memory_address];
+    uint8_t result;
+    if(selected_lookup->addr_mode == IMMEDIATE){
+        result = fetch_next_byte(cpu_6502);
+    } else {
+        uint16_t memory_address = selected_lookup->op_mode(cpu_6502);
+        result = cpu_6502->ram[memory_address];
+    }
     cpu_6502->registers.Y_reg = result;
     
         //Update zero flag
@@ -538,17 +930,27 @@ void LDY(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
 
 // LSR - logical shift Right
 void LSR(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
-    // Fetch the memory address from the instruction's operand mode
-    uint16_t memory_address = selected_lookup->op_mode(cpu_6502);
-    
-    // Fetch the value from memory and calculate the result of the shift
-    uint8_t value = cpu_6502->ram[memory_address];
-    // Set the Carry flag to the original bit 0 before shifting
-    cpu_6502->registers.status_regs = 
-        (cpu_6502->registers.status_regs & ~STATUS_CARRY) | (value & 0x01 ? STATUS_CARRY : 0);
-    // Perform the logical shift right
-    value >>= 1;
-    cpu_6502->ram[memory_address] = value;  // Store the result back in memory
+
+    uint8_t value;
+
+    if(selected_lookup->addr_mode == ACCUMULATOR)
+    {
+        value = cpu_6502->registers.A_reg >> 1;
+        cpu_6502->registers.A_reg = value;
+        
+    }else {
+        // Fetch the memory address from the instruction's operand mode
+        uint16_t memory_address = selected_lookup->op_mode(cpu_6502);
+        // Fetch the value from memory and calculate the result of the shift
+        value = cpu_6502->ram[memory_address];
+        // Set the Carry flag to the original bit 0 before shifting
+
+        cpu_6502->registers.status_regs = 
+            (cpu_6502->registers.status_regs & ~STATUS_CARRY) | (value & 0x01 ? STATUS_CARRY : 0);
+        // Perform the logical shift right
+        value >>= 1;
+        cpu_6502->ram[memory_address] = value;  // Store the result back in memory
+    }
 
     // Set the Zero flag if the result is zero
     cpu_6502->registers.status_regs = 
@@ -611,66 +1013,97 @@ void PLA(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
 
 // PLP - Pull Processor Status
 void PLP(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
+    uint8_t pulled_status_flags = cpu_6502->stack[++cpu_6502->registers.SP_reg];
+    cpu_6502->registers.status_regs = 
+    (cpu_6502->registers.status_regs & 0x30) |(pulled_status_flags & 0xCF);      
 
 }
+
 
 // ROL - Rotate Left
 void ROL(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
     // carry -> bit 0
     //bit 7 -> carry
-    uint8_t operand;
-    uint8_t temp_status_flags = cpu_6502->registers.status_regs;
 
-    if(selected_lookup->op_mode == implied_mode) {
-        operand = cpu_6502->registers.A_reg;        
+    int8_t value;
+    bool carry_flag_status = (cpu_6502->registers.status_regs & STATUS_CARRY) ? 1 : 0;
+    if(selected_lookup->addr_mode == ACCUMULATOR)
+    {
+        value = cpu_6502->registers.A_reg;
+        //set carry flag to bit 7
+        cpu_6502->registers.status_regs = (cpu_6502->registers.status_regs & ~STATUS_CARRY) |
+                                        ((value & 0x80) ? STATUS_CARRY : 0);
+        value <<= 1;
+        //set  bit 0 to carry
+        value = value | (carry_flag_status ? 0x1 : 0);
+        cpu_6502->registers.A_reg = value;
+    } else {
+        uint16_t mem_addr = selected_lookup->op_mode(cpu_6502);
+        value = cpu_6502->ram[mem_addr]; 
+            //set carry flag to bit 0
+        cpu_6502->registers.status_regs = (cpu_6502->registers.status_regs & ~STATUS_CARRY) |
+                                        ((value & 0x80) ? STATUS_CARRY : 0);
+        value <<= 1;
+        value = value | (carry_flag_status ? 0x1 : 0);
+        cpu_6502->ram[mem_addr] = value;
 
-        cpu_6502->registers.A_reg <<= 1;
-        //copy carry flag into bit 0
-        cpu_6502->registers.A_reg = (operand & ~0x1) |
-                                (temp_status_flags & STATUS_CARRY);
-
-    }else {
-        uint16_t memory_address = selected_lookup->op_mode(cpu_6502);
-        operand = cpu_6502->ram[memory_address];
-
-        cpu_6502->ram[memory_address] <<= 1;
-        cpu_6502->ram[memory_address] = (operand & ~0x1) | (temp_status_flags & 0x1);
 
     }
 
-    // bit  7 ->carry
-    cpu_6502->registers.status_regs = (temp_status_flags & ~STATUS_CARRY) | 
-                                        (operand & 0X80);
+
+    // uint8_t operand;
+    // uint8_t temp_status_flags = cpu_6502->registers.status_regs;
+
+    // if(selected_lookup->addr_mode == IMPLIED) {
+    //     operand = cpu_6502->registers.A_reg;        
+
+    //     cpu_6502->registers.A_reg <<= 1;
+    //     //copy carry flag into bit 0
+    //     cpu_6502->registers.A_reg = (operand & ~0x1) |
+    //                             (temp_status_flags & STATUS_CARRY);
+
+    // }else {
+    //     uint16_t memory_address = selected_lookup->op_mode(cpu_6502);
+    //     operand = cpu_6502->ram[memory_address];
+
+    //     cpu_6502->ram[memory_address] <<= 1;
+    //     cpu_6502->ram[memory_address] = (operand & ~0x1) | (temp_status_flags & 0x1);
+
+    // }
+
+    // // bit  7 ->carry
+    // cpu_6502->registers.status_regs = (temp_status_flags & ~STATUS_CARRY) | 
+    //                                     (operand & 0X80);
 
 }
 
 // ROR- Rotate Right
 void ROR(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
-    // carry -> bit 7
-    //bit 0 -> carry
-    uint8_t operand;
-    uint8_t temp_status_flags = cpu_6502->registers.status_regs;
+    int8_t value;
+    bool carry_flag_status = (cpu_6502->registers.status_regs & STATUS_CARRY) ? 1 : 0;
+    if(selected_lookup->addr_mode == ACCUMULATOR)
+    {
+        value = cpu_6502->registers.A_reg;
+        //set carry flag to bit 0
+        cpu_6502->registers.status_regs = (cpu_6502->registers.status_regs & ~STATUS_CARRY) |
+                                        ((value & 0x1) ? STATUS_CARRY : 0);
+        value >>= 1;
+        //set  bit 7 to carry
+        value = value | (carry_flag_status ? 0x80 : 0);
+        cpu_6502->registers.A_reg = value;
+    } else {
+        uint16_t mem_addr = selected_lookup->op_mode(cpu_6502);
+        value = cpu_6502->ram[mem_addr]; 
+            //set carry flag to bit 0
+        cpu_6502->registers.status_regs = (cpu_6502->registers.status_regs & ~STATUS_CARRY) |
+                                        ((value & 0x1) ? STATUS_CARRY : 0);
+        value >>= 1;
+        value = value | (carry_flag_status ? 0x80 : 0);
+        cpu_6502->ram[mem_addr] = value;
 
-    if(selected_lookup->op_mode == implied_mode) {
-        operand = cpu_6502->registers.A_reg;        
-
-        cpu_6502->registers.A_reg <<= 1;
-        //copy carry flag into bit 7
-        cpu_6502->registers.A_reg = (operand & ~0x80) |
-                                ((temp_status_flags & STATUS_CARRY) << 7);
-
-    }else {
-        uint16_t memory_address = selected_lookup->op_mode(cpu_6502);
-        operand = cpu_6502->ram[memory_address];
-
-        cpu_6502->ram[memory_address] <<= 1;
-        cpu_6502->ram[memory_address] = (operand & ~0x1) | (temp_status_flags & 0x1);
 
     }
 
-    // bit  7 ->carry
-    cpu_6502->registers.status_regs = (temp_status_flags & ~STATUS_CARRY) | 
-                                        (operand & 0X80);
 
 }
 
@@ -683,16 +1116,46 @@ void RTI(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
 //RTS - Return from Subroutine
 void RTS(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
     //pulls PC from the stack, increments PC
-    uint16_t pc = cpu_6502->ram[++cpu_6502->registers.SP_reg];
+    // cpu_6502->registers.SP_reg = cpu_6502->ram[++cpu_6502->registers.SP_reg];
 
+    cpu_6502->registers.SP_reg++;
+
+    uint8_t low_byte = cpu_6502->ram[cpu_6502->registers.SP_reg];
+    // increment sp again
+    uint16_t high_byte = cpu_6502->ram[cpu_6502->registers.SP_reg];
+
+    cpu_6502->registers.PC_reg = (high_byte << 8) | low_byte;
+    
 }
 
 
-// TOdo
 // SBC - Subtract with Carry
 void SBC(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
     // A = A - momory - ~C or  A = A + ~memory + C
+  // Fetch the operand value from memory (based on the addressing mode)
+    uint16_t memory = selected_lookup->op_mode(cpu_6502);
+    uint8_t operand = cpu_6502->ram[memory];
 
+    // Perform the subtraction with carry:
+    // A = A - memory - (1 - carry) --> A = A - memory - (1 if no carry, 0 if carry)
+    uint8_t result = cpu_6502->registers.A_reg - operand - (cpu_6502->registers.status_regs & STATUS_CARRY ? 0 : 1);
+
+    // Set the carry flag: if there's no borrow (A >= operand + borrow), set carry to 1
+    cpu_6502->registers.status_regs = (cpu_6502->registers.status_regs & ~STATUS_CARRY) | (cpu_6502->registers.A_reg >= operand + (cpu_6502->registers.status_regs & STATUS_CARRY ? 0 : 1) ? STATUS_CARRY : 0);
+
+    // Set the Zero flag if the result is zero
+    cpu_6502->registers.status_regs = (cpu_6502->registers.status_regs & ~STATUS_ZERO) | (result == 0 ? STATUS_ZERO : 0);
+
+    // Set the Negative flag based on bit 7 of the result
+    cpu_6502->registers.status_regs = (cpu_6502->registers.status_regs & ~STATUS_NEGATIVE) | (result & 0x80 ? STATUS_NEGATIVE : 0);
+
+    // Set the Overflow flag based on signed overflow (subtraction)
+    // Overflow occurs if the signs of A and operand differ, but the result sign is wrong
+    cpu_6502->registers.status_regs = (cpu_6502->registers.status_regs & ~STATUS_OVERFLOW) | 
+        (((cpu_6502->registers.A_reg ^ operand) & 0x80) && ((cpu_6502->registers.A_reg ^ result) & 0x80) ? STATUS_OVERFLOW : 0);
+
+    // Store the result back into the accumulator
+    cpu_6502->registers.A_reg = result;
 }
 
 // SEC - Set Carry
