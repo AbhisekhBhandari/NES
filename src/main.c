@@ -26,11 +26,11 @@ bool load_rom(cpu_6502_t *cpu, const char* rom_file_name) {
 
     }
     size_t bytes_read = fread(&cpu->ram[ROM_START], sizeof(uint8_t), rom_length, rom_file);
+
     if(bytes_read != rom_length) { 
         fprintf(stderr, "Error reading ROM \n");
         fclose(rom_file);
         return false;
-
     }
     fclose(rom_file);
     return true;
@@ -55,7 +55,6 @@ int main(int argc, char **argv)
  
     //load from rom
     bool is_rom_loaded = load_rom(&my_cpu, *(argv + 1));
-
     if(!is_rom_loaded) {
         fprintf(stderr, "Failed to setup rom \n");
         exit(EXIT_FAILURE);
@@ -70,7 +69,6 @@ int main(int argc, char **argv)
         cbreak();
         keypad(stdscr, TRUE);
         start_color();
-
     #endif  
     while(true) { 
 

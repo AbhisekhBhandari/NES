@@ -17,6 +17,8 @@ void emulate_instructions(cpu_6502_t *cpu_6502) {
     #ifdef DEBUG
         show_debug(cpu_6502, &selected_lookup, opcode);
     #endif
+
+    // getchar();
     if(selected_lookup.op_func != NULL) {
 
          void (*func_ptr)(cpu_6502_t*, struct instruction_t* ) = selected_lookup.op_func;

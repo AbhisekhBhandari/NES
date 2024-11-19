@@ -3,38 +3,27 @@
 ;; Jump/Branching operations
 
 main:
-  lda #$0
+  lda #$0 
 
-  ; Testing jmp, should store $45 at $00
-  ; Obviously jsr/rts is better, but trying to test jmp
   jmp setA45
   lda #$0
 returnfromjmp:
   sta $00
-
-  ; Testing jsr/rts/bne
   jsr testSubroutine
-  
-  ; Testing all other branching commands
   jsr testBranches
   brk
-
-
 
 setA45:
   lda #$45
   jmp returnfromjmp
 
 testSubroutine:
-  ; Should store $20 at positions $0010-0015
   ldx #$05
   lda #$20
-  .(
-    loop:
+    loop0:
       dex
       sta $10,X
-      bne loop
-  .)
+      bne loop0
   rts
 
 testBranches:
@@ -43,56 +32,56 @@ testBranches:
   ldx #$00
   lda #$F0
   clc
-  .(
-    loop:
+    loop1:
       sta $20,X
       inx
       adc #$1
-      bcc loop
-      bcs end
+      bcc loop1
+      bcs end1
       lda #$AA
-      jmp loop
-    end:
-  .)
+      jmp loop1
+    end1:
 
   ; BMI/BPL/BEQ
   ; Should store F0-F5 in 30-35 and FF in 36
   clc
   lda #$F0
   ldx #$0
-  .(
-    loop:
+    loop2:
       sta $30,X
       adc #$1
       inx
       cmp $25 ; F5
-      beq specialcase
-      bmi loop
-      bpl end
+
+      bmi loop2
+      bpl end2
     specialcase:
       lda #$FF
-      jmp loop
-    end:
-  .)
+      jmp loop2
+    end2:
+
+
+
+
+
+
 
   ; BVC / BVS
   ; Should fill in values from 40-46
   clv
   lda #77
   ldx #0
-  .(
-    loop:
+    loop3:
       bvc add
-      bvs end
+      bvs end3
     add:
       clc
       clv
       adc #10
       sta $40,X
       inx
-      jmp loop
+      jmp loop3
     end:
-  .)
 
   rts
 

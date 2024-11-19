@@ -19,7 +19,7 @@ LDFLAGS = -lm
 # If you add/change names of source files, here is where you edit
 
 # SRC_DIR = src/
-SOURCES = src/main.c src/cpu_6502.c src/instruction.c src/debug.c
+SOURCES = src/main.c src/instruction.c src/cpu_6502.c src/debug.c
 # FULL_SOURCES= $(addprefix $(SRC_DIR), $(SOURCES)) 
 
 # Defines the "OBJECTS" macro to be the same as the "SOURCES" macro except tgat every instance
@@ -43,6 +43,9 @@ $(TARGET) : $(OBJECTS)
 
 #phony means not a "Real" target, it doesn't build anything 
 # the phony target "clean" is used to remove all compiled object files
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 .PHONY:clean
 

@@ -119,7 +119,7 @@ struct instruction_t lookup[256] = {
     //0x5F
 
     //0x60
-    {"RTS", &RTS, STACK, &implied_mode, 6},
+    {"RTS", &RTS, STACK, &stack_mode, 6},
      {"ADC", &ADC, ZERO_PAGE_INDEXED_INDIRECT,&zero_page_indexed_indirect_mode, 6},
       {"???", &XXX, IMPLIED, &implied_mode, 2},
     {"???", &XXX, IMPLIED, &implied_mode, 8},
@@ -330,6 +330,8 @@ uint16_t absolute_mode(cpu_6502_t* cpu_6502) {
     return addr_higher << 8 | addr_lower;
 
 };
+
+
 // Absolute indexed indirexct:(a, x)
 uint16_t absolute_indexed_indirect_mode(cpu_6502_t* cpu_6502) {
     // Fetch the base address from the next two bytes in memory
@@ -469,16 +471,35 @@ void XXX(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup){
 void ADC(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
     // A =  A + memory + C
     
+    uint8_t value;
+    if(selected_lookup->addr_mode == IMMEDIATE) {
+        value = fetch_next_byte(cpu_6502);
+    }else {
+
     uint16_t memory_addr = selected_lookup->op_mode(cpu_6502);
+    value = cpu_6502->ram[memory_addr];
+    }
     uint8_t carry = (cpu_6502->registers.status_regs & STATUS_CARRY) ? 1 : 0;
-    uint16_t  adc_sum = cpu_6502->registers.A_reg + cpu_6502->ram[memory_addr] + carry;
+    uint16_t  adc_sum = cpu_6502->registers.A_reg + value + carry;
     //set carry flag
     if(adc_sum > 0xFF) {
         cpu_6502->registers.status_regs |= STATUS_CARRY;
     }else{
         cpu_6502->registers.status_regs &= ~STATUS_CARRY;
     }
-    //
+    if (adc_sum & 0x0080) {
+        cpu_6502->registers.status_regs |= STATUS_NEGATIVE;
+    } else {
+        cpu_6502->registers.status_regs &= ~STATUS_NEGATIVE;
+    }
+    //set overflow
+    bool overflow = (~(cpu_6502->registers.A_reg ^ value) & (cpu_6502->registers.A_reg ^ (adc_sum & 0xFF)) & 0x80) != 0;
+    if (overflow) {
+        cpu_6502->registers.status_regs |= STATUS_OVERFLOW;
+    } else {
+        cpu_6502->registers.status_regs &= ~STATUS_OVERFLOW;
+    }
+
     cpu_6502->registers.A_reg = adc_sum & 0xFF;
 
 }
@@ -869,18 +890,49 @@ void INY(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
         (cpu_6502->registers.status_regs & ~STATUS_NEGATIVE) | (result & 0x80 ? STATUS_NEGATIVE : 0);
 }
 
-// JMP - Jump
+
 void JMP(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
-    // PC  = memory
-    uint16_t memory_address = selected_lookup->op_mode(cpu_6502);
-    cpu_6502->registers.PC_reg = cpu_6502->ram[memory_address];
-    
+    // Get the effective address from the addressing mode
+    // if(selected_lookup->addr_mode == ABSOLUTE){
+    //     effective_address = 
+    // }
+    uint16_t effective_address = selected_lookup->op_mode(cpu_6502);
+
+    // If the address is greater than or equal to ROM_START, it's already in the ROM space
+    if (effective_address >= ROM_START) {
+        printf("IF stat, Addr: %04X, Value: %02X", effective_address, cpu_6502->ram[effective_address]);
+        cpu_6502->registers.PC_reg = effective_address;
+    }
+    // Otherwise, adjust the address to be in the ROM space
+    else {
+        printf("else stat, Addr: %04X, Value: %02X", (ROM_START + effective_address), cpu_6502->ram[(ROM_START + effective_address)]);
+
+        cpu_6502->registers.PC_reg = ROM_START + effective_address;
+    }
 }
 
+// // JMP - Jump
+// void JMP(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
+//     // PC  = memory
+//     uint16_t memory_address = selected_lookup->op_mode(cpu_6502); 
+//     uint16_t to_jump_mem = ROM_START + memory_address;
+//     printf("IN JMP: PC is set to %4X", to_jump_mem);
+//     cpu_6502->registers.PC_reg =   to_jump_mem;
+    
+// }
+
 //  JSR - Jump to subroutine 
-void JSR(cpu_6502_t* cpu_6502_t, struct instruction_t* selectect_lookup) {
+void JSR(cpu_6502_t* cpu_6502, struct instruction_t* selectect_lookup) {
     // push PC + 2 to the stack
     // pc = memory
+    uint16_t memory_address = selectect_lookup->op_mode(cpu_6502);
+    //push pc
+    // cpu_6502->registers.PC_reg += 2;        //two bytes after jsr
+    cpu_6502->stack[cpu_6502->registers.SP_reg--] = ((cpu_6502->registers.PC_reg) & 0xFF);     //push low byte
+    cpu_6502->stack[cpu_6502->registers.SP_reg--] = (((cpu_6502->registers.PC_reg) & 0xFF00) >> 8);     //push upper byte
+
+
+    cpu_6502->registers.PC_reg = ROM_START + memory_address;
 
 
 }
@@ -1114,18 +1166,21 @@ void RTI(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
 
 }
 
+
+//TODO;
 //RTS - Return from Subroutine
 void RTS(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
     //pulls PC from the stack, increments PC
     // cpu_6502->registers.SP_reg = cpu_6502->ram[++cpu_6502->registers.SP_reg];
-
     cpu_6502->registers.SP_reg++;
+    uint8_t high_byte = cpu_6502->stack[cpu_6502->registers.SP_reg];
 
-    uint8_t low_byte = cpu_6502->ram[cpu_6502->registers.SP_reg];
     // increment sp again
-    uint16_t high_byte = cpu_6502->ram[cpu_6502->registers.SP_reg];
+    cpu_6502->registers.SP_reg++;
+    uint8_t low_byte = cpu_6502->stack[cpu_6502->registers.SP_reg];
+    uint16_t address_to_jump = (high_byte << 8) | low_byte;
 
-    cpu_6502->registers.PC_reg = (high_byte << 8) | low_byte;
+    cpu_6502->registers.PC_reg =  address_to_jump ;
     
 }
 
