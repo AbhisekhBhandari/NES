@@ -35,6 +35,7 @@
 // ROM
 #define ROM_START   0x8000
 #define ROM_END     0xFFF9
+#define ROM_LOAD_START
 #define ROM_SIZE    (ROM_END - ROM_START + 1)
 
 
@@ -48,6 +49,20 @@
 #define STATUS_OVERFLOW 0x40
 #define STATUS_NEGATIVE 0x80
 
+
+//  Flag position
+#define CARRY_POS 0
+#define ZERO_POS  1
+#define IRQB_DISABLE_POS 2
+#define DECIMAL_POS 3
+#define BREAK_POS 4
+#define UNUSED_POS 5
+#define OVERFLOW_POS 6
+#define NEGATIVE_POS 7
+
+
+
+//
 
 
 typedef struct  {

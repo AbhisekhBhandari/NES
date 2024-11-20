@@ -2,6 +2,8 @@
 
 
 
+
+
 struct instruction_t lookup[256] = {
     // 0X00
     {"BRK", &BRK,IMMEDIATE ,&immediate_mode, 7}, 
@@ -311,9 +313,7 @@ struct instruction_t lookup[256] = {
     // 0xFF
 
 };
-
-
-
+    
 
 
 void branch(cpu_6502_t* cpu_6502) {
@@ -668,6 +668,18 @@ void BPL(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
 
 // BRK - BReak(software IRQ)
 void BRK(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
+    uint16_t pc_to_push = cpu_6502->registers.PC_reg + 1;
+    // push PC+ 1 to the stack
+    cpu_6502->stack[cpu_6502->registers.SP_reg--] = (pc_to_push >> 8) & 0xFF;
+    cpu_6502->stack[cpu_6502->registers.SP_reg--] = (pc_to_push & 0xFF);
+
+    // push NV11DIZC flags to the stack
+    cpu_6502->stack[cpu_6502->registers.SP_reg--] = (cpu_6502->registers.status_regs | STATUS_BREAK | STATUS_UNUSED) ;
+    
+    // setting IRQ_DISABLE flag
+    cpu_6502->registers.status_regs |= STATUS_IRQB_DISABLE;
+    // PC = $FFEE
+    cpu_6502->registers.PC_reg =  cpu_6502->ram[0xFFFE] | (cpu_6502->ram[0xFFFF] << 8);
 
 };
 
@@ -1161,10 +1173,23 @@ void ROR(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
 }
 
 
-// Return from Interrupt 
 void RTI(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
+    // Pull NVxxDIZC flags from the stack
+    uint8_t restore_flags = cpu_6502->stack[++cpu_6502->registers.SP_reg];
+    
+    // Ensure bit 5 (Unused) is set to 1
+    cpu_6502->registers.status_regs = restore_flags | STATUS_UNUSED;
 
+    // Pull low byte of PC from the stack
+    uint8_t low_byte = cpu_6502->stack[++cpu_6502->registers.SP_reg];
+
+    // Pull high byte of PC from the stack
+    uint8_t high_byte = cpu_6502->stack[++cpu_6502->registers.SP_reg];
+
+    // Combine low and high bytes to form the full PC
+    cpu_6502->registers.PC_reg = (high_byte << 8) | low_byte;
 }
+
 
 
 //TODO;

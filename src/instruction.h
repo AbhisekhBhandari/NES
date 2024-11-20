@@ -3,6 +3,8 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdarg.h>
+
 #include "cpu_6502.h"
 
 typedef enum {

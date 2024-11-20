@@ -36,7 +36,7 @@ void cpu_init(cpu_6502_t *cpu_6502) {
     // memset(cpu_6502->ram, 0, sizeof(RAM_SIZE));
     memset(&cpu_6502->registers, 0, sizeof(cpu_6502_regs_t)); //sets all the registers to 0
     cpu_6502->registers.SP_reg = STACK_START_PTR;
-    cpu_6502->registers.status_regs |= STATUS_IRQB_DISABLE; //sets the interrupt flag
+    // cpu_6502->registers.status_regs |= STATUS_IRQB_DISABLE; //sets the interrupt flage
     cpu_6502->registers.PC_reg = ROM_START;
 
 
