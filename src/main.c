@@ -1,8 +1,12 @@
-#include "main.h"
+#define _POSIX_C_SOURCE 199309L
 
+
+#include "main.h"
+#include <time.h>
 
 #include "cpu_6502.h"
 #include "debug.h"
+#include "instruction.h"
 
 #define DEBUG
 
@@ -47,6 +51,8 @@ int main(int argc, char **argv)
     // initialize cpu
     cpu_6502_t my_cpu = {0};
     // 
+
+
     cpu_init(&my_cpu);
     if(argc < 2) {
         fprintf(stderr, "Please provide a ROM \n"); 
@@ -69,10 +75,35 @@ int main(int argc, char **argv)
         cbreak();
         keypad(stdscr, TRUE);
         start_color();
+        nodelay(stdscr, TRUE);
     #endif  
     while(true) { 
 
-        emulate_instructions(&my_cpu);
+        struct timespec start, end;
+        clock_gettime(CLOCK_MONOTONIC_RAW, &start);
+        // 
+        uint8_t opcode = fetch_next_byte(&my_cpu);
+        struct instruction_t selected_lookup = lookup[opcode];
+    // 
+        #ifdef DEBUG
+            show_debug(&my_cpu, &selected_lookup, opcode);
+        #endif
+        emulate_instructions(&my_cpu, &selected_lookup);
+
+        clock_gettime(CLOCK_MONOTONIC_RAW, &end);
+        // recording time elapsed during execution
+        double time_elapsed = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) * 1e-9;
+        // calculating required time per cycle;
+        double target_time = (1.0 / CPU_CLOCK_FREQUENCY) * my_cpu.cycles;
+        double sleep_time = target_time - time_elapsed;
+
+        if(sleep_time > 0) {
+            struct timespec req = {(time_t)sleep_time, (sleep_time - (time_t)sleep_time) * 1e9};
+            nanosleep(&req, NULL);
+        }
+
+
+
     };
     #ifdef DEBUG
         endwin();
@@ -80,4 +111,3 @@ int main(int argc, char **argv)
     return 0;
 
 }
-

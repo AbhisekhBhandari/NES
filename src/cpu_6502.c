@@ -1,6 +1,8 @@
 #include "cpu_6502.h"
-#include "instruction.h"
 #include "debug.h"
+
+#include "instruction.h"
+
 
 #define DEBUG
 
@@ -10,20 +12,22 @@ uint8_t fetch_next_byte(cpu_6502_t* cpu_6502) {
 
 };  
 
-void emulate_instructions(cpu_6502_t *cpu_6502) {
+void emulate_instructions(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
 
-    uint8_t opcode = fetch_next_byte(cpu_6502);
-    struct instruction_t selected_lookup = lookup[opcode];
-    #ifdef DEBUG
-        show_debug(cpu_6502, &selected_lookup, opcode);
-    #endif
+    // uint8_t opcode = fetch_next_byte(cpu_6502);
+    // struct instruction_t selected_lookup = lookup[opcode];
 
-    // getchar();
-    if(selected_lookup.op_func != NULL) {
+    // #ifdef DEBUG
+    //         show_debug(cpu_6502, &selected_lookup, opcode);
+    //     #endif
+    if(selected_lookup->op_func != NULL) {
 
-         void (*func_ptr)(cpu_6502_t*, struct instruction_t* ) = selected_lookup.op_func;
+        void (*func_ptr)(cpu_6502_t*, struct instruction_t* ) = selected_lookup->op_func;
+        cpu_6502->cycles = selected_lookup->cycles;
         (*func_ptr)(cpu_6502, &selected_lookup); 
     }else{
+
+
         fprintf(stderr, "Emulate_instruction failed to call the op func \n");
     }
 }

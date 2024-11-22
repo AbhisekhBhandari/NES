@@ -10,6 +10,8 @@
         "compare": "cpp",
         "instruction.h": "c",
         "debug.h": "c",
-        "ncurses.h": "c"
+        "ncurses.h": "c",
+        "time.h": "c",
+        "unistd.h": "c"
     }
 }

@@ -317,8 +317,9 @@ struct instruction_t lookup[256] = {
 
 
 void branch(cpu_6502_t* cpu_6502) {
-    int8_t offset = fetch_next_byte(cpu_6502);
-    cpu_6502->registers.PC_reg  += offset;     
+    cpu_6502->cycles++;
+    int16_t new_addr = program_counter_relative_mode(cpu_6502);
+    cpu_6502->registers.PC_reg = new_addr;     
 }
 
 
@@ -327,6 +328,9 @@ void branch(cpu_6502_t* cpu_6502) {
 uint16_t absolute_mode(cpu_6502_t* cpu_6502) {
     uint8_t addr_lower = fetch_next_byte(cpu_6502);
     uint8_t addr_higher = fetch_next_byte(cpu_6502);
+
+    // adds 1 cylce if page boundary is crossed
+
     return addr_higher << 8 | addr_lower;
 
 };
@@ -355,17 +359,31 @@ uint16_t absolute_indexed_x_mode(cpu_6502_t* cpu_6502) {
     uint8_t addr_lower = fetch_next_byte(cpu_6502);
     uint8_t addr_higher = fetch_next_byte(cpu_6502);
 
-    return (((addr_higher << 8) | addr_lower) + cpu_6502->registers.X_reg);
+    uint16_t base_address = (addr_higher << 8) | addr_lower;
+    uint16_t memory_address = base_address + cpu_6502->registers.X_reg;
 
-};
+    // Add cycle for page boundary crossing
+    if ((base_address & 0xFF00) != (memory_address & 0xFF00)) {
+        cpu_6502->cycles++; // Only add a cycle if page boundary is crossed
+    }
 
+    return memory_address;
+}
 
 // Absolute Indexed with Y:  a,y
 uint16_t absolute_indexed_y_mode(cpu_6502_t* cpu_6502) {
     uint8_t addr_lower = fetch_next_byte(cpu_6502);
     uint8_t addr_higher = fetch_next_byte(cpu_6502);
 
-    return (((addr_higher << 8) | addr_lower) + cpu_6502->registers.Y_reg);
+    uint16_t base_address = (addr_higher << 8) | addr_lower;
+    uint16_t memory_address = base_address + cpu_6502->registers.Y_reg;
+
+    // Add cycle for page boundary crossing
+    if ((base_address & 0xFF00) != (memory_address & 0xFF00)) {
+        cpu_6502->cycles++; // Only add a cycle if page boundary is crossed
+    }
+
+    return memory_address;
 
 };
 
@@ -395,8 +413,14 @@ uint16_t implied_mode(cpu_6502_t* cpu_6502) {
 // Relative addressing r
 uint16_t program_counter_relative_mode(cpu_6502_t* cpu_6502){
     // offset is added to the pc and returned
-    uint8_t offset = fetch_next_byte(cpu_6502);
+    int8_t offset = fetch_next_byte(cpu_6502);
+    
     uint16_t effective_address = cpu_6502->registers.PC_reg + offset;
+    if((cpu_6502->registers.PC_reg & 0xFF00) != (effective_address & 0xFF00))
+    {
+        cpu_6502->cycles++;
+    }
+
     return effective_address;
 
 
@@ -410,7 +434,6 @@ uint16_t stack_mode(cpu_6502_t* cpu_6502) {
 // Zero Page zp
 uint16_t zero_page_mode(cpu_6502_t* cpu_6502) {
     uint16_t fetched_byte = fetch_next_byte(cpu_6502);
-    printf("ZERO MODE RETURNED: %4X", (fetched_byte & 0x00FF));
     return (fetched_byte & 0x00FF);
 
 }
@@ -1260,7 +1283,12 @@ void SEI(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
 // STA - Store A
 void STA(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup) {
     // Memory = A
+    // cpu_6502->cycles++;
     uint16_t memory_address = selected_lookup->op_mode(cpu_6502);
+    if(selected_lookup->addr_mode == ABSOLUTE_INDEXED_X ||
+    selected_lookup->addr_mode == ABSOLUTE_INDEXED_Y) {
+        cpu_6502->cycles++;
+    }
     cpu_6502->ram[memory_address] = cpu_6502->registers.A_reg;
 }
 

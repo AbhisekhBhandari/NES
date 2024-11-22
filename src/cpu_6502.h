@@ -5,7 +5,9 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
+#include <math.h>
 
+#include "instruction.h"
 
 
 //Memory Map
@@ -62,7 +64,11 @@
 
 
 
-//
+// CLock
+
+#define MASTER_CLOCK_FREQUENCY 21.477       //MHz
+#define CPU_CLOCK_FREQUENCY (1.79 * pow(10, 20))           //MHz
+
 
 
 typedef struct  {
@@ -80,6 +86,7 @@ typedef struct {
     cpu_6502_regs_t registers;
     uint16_t address_bus;       //address bus
     uint8_t stack[STACK_SIZE];
+    uint16_t cycles;
     
 } cpu_6502_t;
 
@@ -90,7 +97,7 @@ typedef struct {
 
 
 
-void emulate_instructions(cpu_6502_t *cpu_6502);
+void emulate_instructions(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup);
 void cpu_init(cpu_6502_t *cpu_6502);
 uint8_t fetch_next_byte(cpu_6502_t* cpu_6502);
 
