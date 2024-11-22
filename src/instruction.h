@@ -124,11 +124,6 @@ void TSB(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup);
 void STZ(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup);
 void BRA(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup);
 
-
-
-
-
-
 extern struct instruction_t lookup[256];
 
 

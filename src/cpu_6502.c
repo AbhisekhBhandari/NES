@@ -1,7 +1,8 @@
+#include "instruction.h"
 #include "cpu_6502.h"
+
 #include "debug.h"
 
-#include "instruction.h"
 
 
 #define DEBUG
@@ -24,7 +25,7 @@ void emulate_instructions(cpu_6502_t* cpu_6502, struct instruction_t* selected_l
 
         void (*func_ptr)(cpu_6502_t*, struct instruction_t* ) = selected_lookup->op_func;
         cpu_6502->cycles = selected_lookup->cycles;
-        (*func_ptr)(cpu_6502, &selected_lookup); 
+        (*func_ptr)(cpu_6502, selected_lookup); 
     }else{
 
 

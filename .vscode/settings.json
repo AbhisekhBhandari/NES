@@ -12,6 +12,7 @@
         "debug.h": "c",
         "ncurses.h": "c",
         "time.h": "c",
-        "unistd.h": "c"
+        "unistd.h": "c",
+        "math.h": "c"
     }
 }

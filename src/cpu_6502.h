@@ -7,7 +7,6 @@
 #include <string.h>
 #include <math.h>
 
-#include "instruction.h"
 
 
 //Memory Map
@@ -100,6 +99,7 @@ typedef struct {
 void emulate_instructions(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup);
 void cpu_init(cpu_6502_t *cpu_6502);
 uint8_t fetch_next_byte(cpu_6502_t* cpu_6502);
+
 
 
 #endif

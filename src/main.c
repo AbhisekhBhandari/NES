@@ -2,8 +2,6 @@
 
 
 #include "main.h"
-#include <time.h>
-
 #include "cpu_6502.h"
 #include "debug.h"
 #include "instruction.h"
