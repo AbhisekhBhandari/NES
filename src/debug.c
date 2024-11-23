@@ -82,9 +82,10 @@ void show_debug(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup, uin
         getyx(stdscr, stack_y_cursor, stack_x_cursor);
         show_stack(cpu_6502, stack_x_cursor, stack_y_cursor, STACK_START_ADDRESS);
 
-
         int ch;
         ch = getch();
+        if(ch != ERR) {
+
         switch (ch) {
             case '\n':  // ENTER
                 infinite_loop = false;
@@ -102,6 +103,7 @@ void show_debug(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup, uin
 
             default:
                 break;
+        }
         }
         // printw("\nYou are in debug mode:\n");
         // printw("ENTER - Next Instruction\n");

@@ -2,12 +2,7 @@
 
 #define CPU_6502_INCLUDE
 
-#include <stdio.h>
-#include <stdint.h>
-#include <string.h>
-#include <math.h>
-
-
+#include "main.h"
 
 //Memory Map
 
@@ -70,33 +65,34 @@
 
 
 
-typedef struct  {
-    uint8_t A_reg;          //accumulator 
-    uint8_t Y_reg;          //Index Y register
-    uint8_t X_reg;          //Index X register
-    uint16_t PC_reg;        //Program Counter
-    uint8_t SP_reg;         // Stack pointer register
-    uint8_t status_regs;    //Carry,    zero,  IRQB, Dcecimal, BRK, 1,  overflow, ngative
+// typedef struct  {
+//     uint8_t A_reg;          //accumulator 
+//     uint8_t Y_reg;          //Index Y register
+//     uint8_t X_reg;          //Index X register
+//     uint16_t PC_reg;        //Program Counter
+//     uint8_t SP_reg;         // Stack pointer register
+//     uint8_t status_regs;    //Carry,    zero,  IRQB, Dcecimal, BRK, 1,  overflow, ngative
 
-} cpu_6502_regs_t;
+// } cpu_6502_regs_t;
 
-typedef struct {
-    uint8_t ram[RAM_SIZE];          //2kb ram
-    cpu_6502_regs_t registers;
-    uint16_t address_bus;       //address bus
-    uint8_t stack[STACK_SIZE];
-    uint16_t cycles;
+// typedef struct {
+//     uint8_t ram[RAM_SIZE];          //2kb ram
+//     cpu_6502_regs_t registers;
+//     uint16_t address_bus;       //address bus
+//     uint8_t stack[STACK_SIZE];
+//     uint16_t cycles;
     
-} cpu_6502_t;
-
-
-
+// } cpu_6502_t;
 
 
 
 
 
 void emulate_instructions(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup);
+
+
+
+// void emulate_instructions(cpu_6502_t* cpu_6502, struct instruction_t* selected_lookup);
 void cpu_init(cpu_6502_t *cpu_6502);
 uint8_t fetch_next_byte(cpu_6502_t* cpu_6502);
 
