@@ -4,34 +4,6 @@
 #include "main.h"
 #include "cpu_6502.h"
 
-// typedef enum {
-//     ABSOLUTE,
-//     ABSOLUTE_INDEXED_INDIRECT,
-//     ABSOLUTE_INDEXED_X,
-//     ABSOLUTE_INDEXED_Y,
-//     ABSOLUTE_INDIRECT,
-//     ACCUMULATOR,
-//     IMMEDIATE,
-//     IMPLIED,
-//     PROGRAM_COUNTER_RELATIVE,
-//     STACK,
-//     ZERO_PAGE,
-//     ZERO_PAGE_INDEXED_INDIRECT,
-//     ZERO_PAGE_INDEXED_X,
-//     ZERO_PAGE_INDEXED_Y,
-//     ZERO_PAGE_INDIRECT,
-//     ZERO_PAGE_INDIRECT_INDEXED_Y,   
-
-// }addressing_modes_t;
-
-
-// struct instruction_t {
-//     char* opcode;
-//     void (*op_func)(cpu_6502_t*, struct instruction_t*);
-//     addressing_modes_t addr_mode;
-//     uint16_t (*op_mode)(cpu_6502_t* cpu_6502);
-//     uint8_t cycles;
-// };
 
 // modes
 uint16_t absolute_mode(cpu_6502_t* cpu_6502);   //a

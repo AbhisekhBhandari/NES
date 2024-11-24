@@ -2,8 +2,6 @@
 
 #include "debug.h"
 
-
-
 #define DEBUG_PAGE_SIZE 256
 #define DEBUG_ADDRESS_SIZE 16
 

@@ -13,6 +13,7 @@
         "ncurses.h": "c",
         "time.h": "c",
         "unistd.h": "c",
-        "math.h": "c"
+        "math.h": "c",
+        "cstdint": "c"
     }
 }
